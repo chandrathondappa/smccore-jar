@@ -1,0 +1,9 @@
+.classpath
+.factorypath
+.project
+.settings
+.vscode
+.apt_generated
+/src/main/java/rebel.xml
+/src/main/resources/rebel.xml
+/target/

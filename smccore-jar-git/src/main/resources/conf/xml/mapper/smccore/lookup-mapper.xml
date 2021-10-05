@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.penske.apps.smccore.base.dao.LookupDAO">
+
+	<!-- SELECT QUERIES -->
+	<select id="getLookupCacheInfo" resultType="LookupCacheInfo">
+		SELECT
+			COALESCE(MAX(total.lookupModified), '1970-01-01') AS lookupModified,
+			COALESCE(MAX(total.lookupCount), 0) AS lookupCount,
+			COALESCE(MAX(total.doctypeMasterModified), '1970-01-01') AS doctypeMasterModified,
+			COALESCE(MAX(total.doctypeCount), 0) AS doctypeCount
+		FROM (
+			(
+				SELECT MAX(GREATEST(MODIFIED_DATE, CREATED_DATE)) AS lookupModified, COUNT(*) AS lookupCount, CAST(NULL AS TIMESTAMP) AS doctypeMasterModified, CAST(NULL AS INTEGER) AS doctypeCount
+				FROM SMC.SMC_LOOKUP
+			) UNION (
+				SELECT CAST(NULL AS TIMESTAMP) AS lookupModified, CAST(NULL AS INTEGER) AS lookupCount, MAX(GREATEST(CREATED_DATE, MODIFIED_DATE)) AS doctypeMasterModified, COUNT(*) AS doctypeCount
+				FROM SMC.SMC_DOCTYPE_MASTER
+			)
+		) AS total
+	</select>
+	
+	<select id="getLookupItems" resultType="LookupItem">
+		SELECT
+			l.LOOKUP_ID,
+			l.LOOKUP_NAME AS name,
+			l.LOOKUP_VALUE AS value,
+			l.LOOKUP_DESC AS description,
+			l.LOOKUP_SEQ AS sequence
+		FROM SMC.SMC_LOOKUP l
+		<!-- Only get active lookups -->
+		WHERE l.LOOKUP_STATUS = 'A'
+		ORDER BY l.LOOKUP_NAME, l.LOOKUP_SEQ
+	</select>
+	
+	<select id="getSalesnetDocTypeMasters" resultType="DocTypeMaster">
+		SELECT
+			mast.DOCTYPE_ID AS docTypeId,
+			mast.DOC_GRP_NAME AS docGroupName,
+			mast.DOC_TYPE AS docType,
+			CASE WHEN mast.IS_EDITABLE = 'Y' THEN 1 ELSE 0 END AS editable
+		FROM SMC.SMC_DOCTYPE_MASTER mast
+		WHERE mast.DOC_GRP_NAME = #{salesnetDocumentGroup}
+	</select>
+	
+	<select id="getUserDocTypeMasters" resultType="DocTypeMaster">
+		SELECT
+			mast.DOCTYPE_ID AS docTypeId,
+			mast.DOC_GRP_NAME AS docGroupName,
+			mast.DOC_TYPE AS docType,
+			CASE WHEN mast.IS_EDITABLE = 'Y' THEN 1 ELSE 0 END AS editable
+		FROM SMC.SMC_DOCTYPE_MASTER mast
+		WHERE mast.DOC_GRP_NAME = #{usersDocumentGroup}
+	</select>
+
+</mapper>

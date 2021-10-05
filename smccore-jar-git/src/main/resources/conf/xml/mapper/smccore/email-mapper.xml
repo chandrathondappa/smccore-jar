@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.2//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.penske.apps.smccore.base.dao.EmailDAO">
+
+	<select id="getEmailTemplate" resultType="EmailTemplate">
+		SELECT
+			t.EMAIL_TEMPLATE_ID,
+			t.EMAIL_TYPE,
+			t.EMAIL_SUBJECT AS subjectTemplate,
+			t.EMAIL_TEMPLATE AS bodyTemplate
+		FROM SMC.SMC_EMAIL_TEMPLATE t
+		WHERE t.EMAIL_TYPE = #{emailType}
+	</select>
+
+	<insert id="insertSmcEmail" useGeneratedKeys="true" keyProperty="email.emailAuditId">
+		INSERT INTO SMC.SMC_EMAIL (
+			USER_SSO,
+			TO_ADDRESS,
+			CC_ADDRESS,
+			BCC_ADDRESS,
+			EMAIL_BODY,
+			EMAIL_SUBJECT,
+			CREATED_DATE,
+			CREATED_BY,
+			IS_PROCESSED
+		) VALUES (
+			#{email.sso},
+			#{email.toAddress},
+			#{email.ccAddress},
+			#{email.bccAddress},
+			#{email.body},
+			#{email.subject},
+			CURRENT_TIMESTAMP,
+			#{email.sso},
+			'N'
+		)
+	</insert>
+	
+	<insert id="insertEmailDocuments" useGeneratedKeys="true" keyProperty="docId">
+		INSERT INTO SMC.SMC_EMAIL_DOCS (
+			EMAIL_AUDIT_ID,
+			DOC_NAME,
+			DOC_TYPE,
+			DAS_ID,
+			CREATED_BY,
+			CREATED_DATE
+		) VALUES
+		<foreach collection="list" item="document" separator=",">
+			(
+				#{document.emailAuditId},
+				#{document.documentName},
+				#{document.documentType},
+				#{document.dasId},
+				#{creatorSso},
+				CURRENT_TIMESTAMP
+			)
+		</foreach>
+	</insert>
+</mapper>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.2//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.penske.apps.smccore.base.dao.UserDAO">
+
+	<resultMap type="User" id="UserMap">
+		<id		column="USER_ID" property="userId" />
+		<result column="SSO" property="sso" />
+		<result column="FIRST_NAME" property="firstName" />
+		<result column="LAST_NAME" property="lastName" />
+		<result column="EMAIL" property="emailAddress" />
+		<result column="PHONE" property="phone" />
+		<result column="TYPE_ID" property="userType" />
+		<result column="ORG_ID" property="orgId" />
+		<result column="ROLE_ID" property="roleId" />
+		<result column="DEPT_ID" property="userDepartment" />
+		<result column="ORG_NAME" property="orgName" />
+		
+		<discriminator javaType="String" column="LOAD_SECURITY_FUNCTIONS_AND_VENDORS">
+			<case value="BOTH" resultType="User">
+				<collection property="securityFunctionViews" column="ROLE_ID" ofType="String" select="getUserSecurityFunctions" fetchType="eager" />
+				<collection property="vendorViews" column="ORG_ID" ofType="String" select="getAssociatedVendors" fetchType="eager" />
+			</case>
+			<case value="SECURITY" resultType="User">
+				<collection property="securityFunctionViews" column="ROLE_ID" ofType="String" select="getUserSecurityFunctions" fetchType="eager" />
+			</case>
+			<case value="VENDOR" resultType="User">
+				<collection property="vendorViews" column="ORG_ID" ofType="String" select="getAssociatedVendors" fetchType="eager" />
+			</case>
+		</discriminator>
+	</resultMap>
+
+	<select id="getUsers" resultMap="UserMap">
+ 		SELECT 
+ 			u.USER_ID,
+ 			u.SSO,
+ 			u.FIRST_NAME,
+ 			u.LAST_NAME,
+ 			u.EMAIL,
+ 			u.PHONE,
+ 			u.TYPE_ID,
+ 			u.ORG_ID,
+ 			u.ROLE_ID,
+ 			u.DEPT_ID,
+ 			org.NAME AS ORG_NAME,
+ 			<choose>
+ 				<when test="loadSecurityFunctions and loadVendors">'BOTH'</when>
+ 				<when test="loadSecurityFunctions and not loadVendors">'SECURITY'</when>
+ 				<when test="not loadSecurityFunctions and loadVendors">'VENDOR'</when>
+ 				<otherwise>'NONE'</otherwise>
+ 			</choose> AS LOAD_SECURITY_FUNCTIONS_AND_VENDORS
+ 		FROM SMC.SMC_USER_MASTER u
+ 		LEFT JOIN SMC.SMC_ORG_MASTER org ON org.ORG_ID = u.ORG_ID
+ 		WHERE u.STATUS = 'A'
+		<if test="sso != null">
+	  		AND u.SSO = #{sso}
+		</if>
+		<if test="userType != null">
+			AND u.TYPE_ID = #{userType}
+		</if>
+		<if test="userDepartment != null">
+			AND u.DEPT_ID = #{userDepartment}
+		</if>
+ 		ORDER BY u.FIRST_NAME, u.LAST_NAME
+ 	</select>
+ 	
+ 	<!-- This query is a child query for the getUser query. It is run to get the security functions, but is not called from the UserDAO at all -->
+ 	<select id="getUserSecurityFunctions" resultType="SecurityFunctionView">
+ 		SELECT
+ 			secFunction.SEC_FUNC_ID AS securityFunctionId,
+ 			secFunction.NAME,
+ 			secFunction.DESCRIPTION,
+ 			tab.TAB_KEY,
+ 			tab.TABNAME AS tabName
+ 		FROM SMC.SMC_ROLE_SEC_FUNCTIONS roleFunction
+ 		JOIN SMC.SMC_SECURITY_FUNCTION secFunction ON secFunction.SEC_FUNC_ID = roleFunction.SEC_FUNC_ID
+ 		JOIN SMC.SMC_TAB_MASTER tab ON tab.TAB_ID = secFunction.TAB_ID
+ 		WHERE secFunction.STATUS = 'A'
+ 		  AND tab.STATUS = 'A'
+ 		  AND roleFunction.ROLE_ID = #{roleId}
+ 	</select>
+ 	
+ 	<select id="getAssociatedVendors"  resultType="SmcVendorView">
+		SELECT vend.VENDOR_ID,
+			vend.VENDOR_NUMBER,
+			vend.CORP,
+			vend.VENDOR_NAME,
+			vend.NOTIFICATION_EXCEPTION,
+			vend.ANNUAL_AGREEMENT,
+			vend.MFR
+		FROM SMC.SMC_ORG_VENDOR_ASSOC orgVendor
+		JOIN SMC.SMC_VENDOR_MASTER vend ON vend.VENDOR_ID = orgVendor.VENDOR_ID
+		WHERE orgVendor.ORG_ID = #{orgId}
+		  AND vend.STATUS = 'A'
+	</select>
+	
+	<!-- BUDDIES QUERIES -->
+	<select id="getExistingBuddiesList" resultType="String">
+		SELECT
+		BUDDY_SSO AS buddySso
+		FROM SMC.SMC_BUDDIES
+		WHERE SSO=#{sso}
+	</select>	
+	
+	<select id="getSelectionType" resultType="com.penske.apps.smccore.base.domain.enums.BuddySelectionType">
+ 		SELECT DISTINCT(SELECTION_TYPE) 
+ 		FROM SMC.SMC_BUDDIES 
+ 		WHERE SSO=#{sso} 
+ 		AND BUDDY_SSO=#{sso}
+ 	</select>
+ 	
+ 	<select id="getExistingBuddiesListFromUserMaster" resultType="String">
+ 		SELECT SSO AS buddySso
+		FROM SMC.SMC_USER_MASTER
+		<where>
+			( TYPE_ID=1
+			<if test="selectionType.code != 'ALL'">
+			
+				<if test="selectionType.code == 'ALLBUYERS'">
+					AND DEPT_ID=1
+				</if>
+				<if test="selectionType.code == 'ALLPLANNING'">
+					AND DEPT_ID=2
+				</if>
+			</if>
+			)
+			OR SSO=#{sso}
+ 		</where>
+ 	</select>
+ 	
+ 	<select id="getVendorIdsFromVendorFilter" resultType="Integer">
+ 		SELECT 
+ 			VENDOR_ID 
+		FROM SMC.SMC_VENDOR_FILTER 
+		WHERE USER_ID = #{user.userId}
+		AND IS_ACTIVE = 1
+ 	</select>
+
+	<select id="getVendorIdsFromBuddies" resultType="Integer">
+		SELECT 
+			VEND.VENDOR_ID 
+		FROM SMC . SMC_VENDOR_MASTER VEND 
+		INNER JOIN SMC.SMC_USER_MASTER USR 
+			ON VEND.SUPPLY_SPECIALIST = USR.USER_ID OR VEND.PLANNING_ANALYST = USR.USER_ID 
+		WHERE USR.SSO IN (
+			<foreach collection="ssoList" item="sso" open="" separator="," close="">
+	 			#{sso}
+	 		</foreach>
+		) 
+	</select>
+ 
+ </mapper>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.2//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.penske.apps.smccore.base.dao.AlertsDAO">
+
+	<select id="getAlertsForTab" resultType="com.penske.apps.smccore.base.domain.SmcAlert">
+		SELECT 
+			ALRT.ALERT_ID,
+			ALRT.ALERT_KEY as alertType,
+			ALRT.ALERT_NAME,
+			ALRT.TEMPLATE_ID,
+			ST.TEMPLATE_KEY,
+			ALRT.DISPLAY_SEQUENCE,
+			ALRT.HEADER_ID,
+			ALRT.VISIBILITY_VENDOR as visibleToVendor,
+			ALRT.VISIBILITY_PENSKE as visibleToPenske,
+			ALRT.ACTIONABLE,
+			ALRT.HELP_TEXT,
+			ALRT.MEASURE_VALUE,
+			ALRT.COMPLIANCE_TEXT,
+			TAB.TAB_ID,
+			TAB.TAB_KEY
+		FROM SMC.SMC_TAB_MASTER TAB 
+		INNER JOIN SMC.SMC_ALERT_HEADER HDR 
+			ON TAB.TAB_ID = HDR.TAB_ID 
+		INNER JOIN SMC.SMC_ALERTS ALRT 
+			ON HDR.HEADER_ID = ALRT.HEADER_ID
+		LEFT JOIN SMC.SMC_SEARCH_TEMPLATES ST
+			ON ALRT.TEMPLATE_ID = ST.TEMPLATE_ID
+		WHERE TAB.TAB_KEY = #{tab.tabKey}
+		<if test="headerId != null">
+			AND ALRT.HEADER_ID = #{headerId}
+		</if>
+		<!-- Penske User -->
+		<choose>
+			<when test="userType == penskeUserType">
+				AND ALRT.VISIBILITY_PENSKE = 1
+			</when>
+			<otherwise>
+				AND ALRT.VISIBILITY_VENDOR = 1
+			</otherwise>
+		</choose>
+		ORDER BY ALRT.DISPLAY_SEQUENCE
+	</select>	
+	
+	<select id="getFullfillmentAlertData" parameterType="String" resultType="com.penske.apps.smccore.base.domain.FulfillmentAlertData">
+ 		SELECT
+			SUM(CASE WHEN CNT_OF_WORKING = 'Y' THEN 1 ELSE 0 END) AS workingCount,
+			SUM(CASE WHEN CNT_OF_PENDED = 'Y' THEN 1 ELSE 0 END) AS pendingCount,
+			SUM(CASE WHEN CNT_OF_READY_TO_ORDER = 'Y' THEN 1 ELSE 0 END) AS readyToOrderCount,
+			SUM(CASE WHEN CNT_OF_CONTRACT_RVW = 'Y' THEN 1 ELSE 0 END) AS contractReviewCount,
+			(SELECT COUNT (DISTINCT VENDOR_ID) FROM SMC.SMC_VENDOR_MASTER WHERE PLANNING_ANALYST IS NULL AND STATUS = 'A') AS vendorAnalystAssignmentRequiredCount,
+			(SELECT COUNT (DISTINCT VENDOR_ID) FROM SMC.SMC_VENDOR_MASTER WHERE STATUS = 'A' AND VENDOR_ID NOT IN (
+				SELECT VENDOR_ID FROM SMC.SMC_ORG_VENDOR_ASSOC WHERE ORG_ID != 1 
+			)) AS newVendorSetupRequiredCount,
+			(SELECT COUNT (DISTINCT VND.VENDOR_ID) FROM SMC.SMC_VENDOR_MASTER VND 
+				INNER JOIN SMC.SMC_ORG_VENDOR_ASSOC VNDASSOC 
+					ON VND.VENDOR_ID = VNDASSOC.VENDOR_ID AND VNDASSOC.ORG_ID != 1 
+				WHERE VNDASSOC . ORG_ID NOT IN (
+					SELECT DISTINCT ORG_ID FROM SMC . SMC_USER_MASTER WHERE TYPE_ID = 2 
+				) 
+			AND VND.STATUS = 'A' ) AS vendorUserSetupRequiredCount
+		FROM SMC.SMC_ORDER_FULFILLMENT_SUMMARY OFSUM
+		WHERE BUYER_SSO IN (
+			<foreach collection="ssoList" item="sso" open="" separator="," close="">
+	 			#{sso}
+	 		</foreach>
+		) 
+ 	</select>
+ 	
+ 	<select id="getProductionAlertData" parameterType="String" resultType="com.penske.apps.smccore.base.domain.ProductionAlertData">
+ 		SELECT
+			SUM(CASE WHEN 
+				UMICS.SUM_CONFLICTS IS NOT NULL
+				AND UMICS.SUM_CONFLICTS > 0
+				AND UMICS.ALRT_PROD_DATA_CONFLICT_CRITERIA = 'Y' THEN 1 ELSE 0 END) AS dataConflictCount,
+			SUM(CASE WHEN ALRT_PROD_DELAY_COMM_REQ = 'Y' AND UNIT_STATUS IN ('ISSUED','CONFIRM', 'CLOSED') 
+				<if test="hideDates">
+					AND (TRANSPORT_TYPE = 'O' OR ACT_PROD_DATE IS NULL)
+				</if>
+			THEN 1 ELSE 0 END) AS delayCommReqCount,
+			SUM(CASE WHEN ALRT_PROD_DELV_DT_EARLY = 'Y' AND UNIT_STATUS IN ('ISSUED','CONFIRM', 'CLOSED') 
+				<if test="hideDates">
+					AND TRANSPORT_TYPE = 'O'
+				</if>
+				THEN 1 ELSE 0 END) AS deliveryDateEarlyCount,
+			SUM(CASE WHEN ALRT_PROD_DELV_DT_LATE = 'Y' AND UNIT_STATUS IN ('ISSUED','CONFIRM', 'CLOSED')
+				<if test="hideDates">
+					AND TRANSPORT_TYPE = 'O'
+				</if> 
+				THEN 1 ELSE 0 END) AS deliveryDateLateCount,
+			SUM(CASE WHEN ALRT_PROD_DELV_DT_OUT_OF_RANGE = 'Y' AND UNIT_STATUS IN ('ISSUED','CONFIRM', 'CLOSED') THEN 1 ELSE 0 END) AS deliveryDateOutOfRangeCount,
+			SUM(CASE WHEN ALRT_PROD_EST_DELV_PAST_DUE = 'Y' AND UNIT_STATUS IN ('ISSUED','CONFIRM', 'CLOSED')
+				<if test="hideDates">
+					AND TRANSPORT_TYPE = 'O'
+				</if>
+				THEN 1 ELSE 0 END) AS estDeliveryDatePastDueCount,
+			SUM(CASE WHEN ALRT_PROD_EST_PROD_PAST_DUE = 'Y' AND UNIT_STATUS IN ('ISSUED','CONFIRM', 'CLOSED') THEN 1 ELSE 0 END) AS estProductionDatePastDueCount,
+			SUM(CASE WHEN 
+				UMICS.SUM_MISSING_INFO IS NOT NULL
+				AND UMICS.SUM_MISSING_INFO > 0
+				AND (UMICS.ALRT_PROD_MISSING_INFO_CRITERIA = 'Y' 
+					OR UMICS.ALRT_PROD_DELV_MISSING_INFO_CRITERIA = 'Y') THEN 1 ELSE 0 END) AS missingInfoCount,
+			SUM(CASE WHEN ALRT_PROD_PROD_DT_EARLY = 'Y' AND UNIT_STATUS IN ('ISSUED','CONFIRM', 'CLOSED') THEN 1 ELSE 0 END) AS prodDateEarlyCount,
+			SUM(CASE WHEN ALRT_PROD_PROD_DT_LATE = 'Y' AND UNIT_STATUS IN ('ISSUED','CONFIRM', 'CLOSED') THEN 1 ELSE 0 END) AS prodDateLateCount,
+			SUM(CASE WHEN ALRT_PROD_PROD_DT_OUT_OF_RANGE = 'Y' AND UNIT_STATUS IN ('ISSUED','CONFIRM', 'CLOSED') THEN 1 ELSE 0 END) AS prodDateOutOfRangeCount,
+			SUM(CASE WHEN ALRT_PROD_PROD_HOLDS = 'Y' AND UNIT_STATUS IN ('ISSUED','CONFIRM', 'CLOSED') 
+				<if test="hideDates">
+					AND TRANSPORT_TYPE = 'O'
+				</if>
+				THEN 1 ELSE 0 END) AS prodHoldsCount
+		FROM SMC.SMC_PRODUCTION_SUMMARY PRSUM
+		LEFT JOIN SMC.V_SMC_UNIT_MISSING_INFO_AND_CONFLICTS_SUMS UMICS
+			ON UMICS.MASTER_ID = PRSUM.MASTER_ID 
+		WHERE VENDOR_ID IS NOT NULL
+		AND VENDOR_ID IN (
+			<foreach collection="associatedVendorIds" item="associatedVendorId" open="" separator="," close="">
+	 			#{associatedVendorId}
+	 		</foreach>
+		)
+ 	</select>
+ 	
+ 	<select id="getConfirmationAlertData" parameterType="String" resultType="com.penske.apps.smccore.base.domain.ConfirmationAlertData">
+ 		SELECT
+			SUM(CASE WHEN CNT_OC_CANC_ORDER = 'Y' THEN 1 ELSE 0 END) AS cancellationCount,
+			SUM(CASE WHEN CNT_OC_CHANGE_ORDER = 'Y' THEN 1 ELSE 0 END) AS changeOrderCount,
+			SUM(CASE WHEN CNT_OC_PURCHASE_ORDER = 'Y' THEN 1 ELSE 0 END) AS purchaseOrderCount
+		FROM SMC.SMC_ORDER_CONFIRMATION_SUMMARY OCSUM
+		<where>
+			<if test="associatedVendorIds == null and ssoList == null">
+				1 = -1
+			</if>
+			<if test="associatedVendorIds != null and vendorUser">
+				VENDOR_ID IN (
+					<foreach collection="associatedVendorIds" item="associatedVendorId" open="" separator="," close="">
+			 			#{associatedVendorId}
+			 		</foreach>
+				)
+			</if>
+			<if test="ssoList != null and !vendorUser">
+				CREATED_BY IN (
+					<foreach collection="ssoList" item="sso" open="" separator="," close="">
+			 			#{sso}
+			 		</foreach>
+				)
+			</if>
+			<if test="vendorUser">
+				AND VENDOR_VISIBILITY = 'Y'
+			</if>
+		</where>
+ 	</select>
+ 	
+ 	<select id="getAllVendorIds" resultType="Integer">
+ 		SELECT 
+ 			VENDOR_ID 
+		FROM SMC.SMC_VENDOR_MASTER
+ 	</select>
+ 	
+</mapper>

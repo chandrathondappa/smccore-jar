@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.penske.apps.smccore.component.dao.unittemplate.UnitComponentDAO">
+
+	<!-- RESULT MAPS -->
+	<resultMap type="SmcComponentValue" id="SmcComponentValueMapping">
+		<id 	column="MASTER_ID"			property="masterId" />
+		<id 	column="COMPONENT_ID"		property="componentId" />
+		<result column="COMPONENT_TYPE"		property="componentType" />
+		<result column="TEXT_VALUE"			property="textValue" typeHandler="com.penske.apps.smccore.base.configuration.typeHandlers.StringTrimmingTypeHandler" />
+		<result column="NUM_VALUE"			property="numericValue" />
+		<result column="DATE_VALUE"			property="dateValue" />
+	</resultMap>
+	
+	<resultMap type="Rule" id="RuleMapping">
+		<id		property="ruleId"		column="RULE_ID" />
+		<result property="templateId"	column="TEMPLATE_ID" />
+		<result property="name"			column="NAME"/>
+		<result property="description"	column="DESCRIPTION"/>
+		<result property="ruleType"		column="RULE_TYPE" />
+		<collection property="criteriaGroupList" ofType="RuleCriteriaGroup" notNullColumn="CRITERIA_GROUP">
+			<id		property="criteriaGroup"	column="CRITERIA_GROUP" />
+			<result	property="ruleId"			column="RULE_ID" />
+			<collection property="criteriaList" ofType="RuleCriteria" notNullColumn="RULE_DEF_ID">
+				<id		property="ruleDefId"		column="RULE_DEF_ID" />
+				<result	property="ruleId"			column="RULE_ID" />
+				<result property="criteriaGroup"	column="CRITERIA_GROUP" />
+				<result property="componentId"		column="COMPONENT_ID" />
+				<result property="operator"			column="OPERAND" />
+				<result property="componentValue"	column="COMPONENT_VALUE" />
+			</collection>
+		</collection>
+	</resultMap>
+	
+	<resultMap type="UnitComponentMaster" id="UnitComponentMasterMapping">
+		<id		column="MASTER_ID"			property="masterId" />
+		<id		column="COMPONENT_ID"		property="componentId" />
+		<result	column="COMPONENT_NAME"		property="componentName" />
+		<result column="COMPONENT_TYPE"		property="componentType" />
+		<result	column="VISIBILITY"			property="visibility" />
+		<result	column="DECIMAL_POSITIONS"	property="decimalPositions" />
+		<result column="FIELD_LENGTH"		property="fieldLength" />
+		<result column="AVAIL_TO_OTHER_PO"	property="availableOnOtherPO" />
+		<result	column="EXPORT_TO_EXCEL"	property="exportToExcel" />
+		<result column="VEHICLE_COMPONENT"	property="vehicleComponent" />
+		<association javaType="UnitComponent" property="previousValues">
+			<result	column="SAVED_MASTER_ID"		property="masterId" />
+			<result	column="SAVED_COMPONENT_ID"		property="componentId" />
+			<result	column="SAVED_AVAIL_TO_OTHER_PO" property="availableOnOtherPO" />
+			<result	column="SAVED_EXPORT_TO_EXCEL"	property="exportToExcel" />
+			<result	column="SAVED_BASE_VISIBILITY"	property="baseVisibility" />
+			<result	column="SAVED_RULE_VISIBILITY"	property="ruleVisibility" />
+			<result	column="SAVED_FINAL_VISIBILITY"	property="finalVisibility" />
+			<result	column="SAVED_CONFLICT_STATUS"	property="conflictStatus" />
+			<result	column="SAVED_VALUE_PROVIDED"	property="valueProvided" />
+		</association>
+	</resultMap>
+
+	<!-- SQL FRAGMENTS -->
+	<!-- This set of criteria reflects whether a given unit master is visible at all to the rules engine and component logic. -->
+	<sql id="visiblePoFilter">
+			mast.IS_REPLACED = 'N'			<!-- Replaced POs aren't visible to the rules engine for any reason -->
+		AND mast.TEMPLATE_ID IS NOT NULL	<!-- POs without a template ID haven't been processed by SMCPDF yet, so they aren't visible, either. -->
+		AND mast.UNIT_STATUS != 'VOID'		<!-- POs that have been voided aren't visible to the rules engine for any reason. -->
+		AND poMap.PAYABLE_STATUS != 'VOID'	<!-- Individual units that have been voided off of POs are not visible to the rules engine for any reason -->
+	</sql>
+	
+	<!-- SELECT QUERIES -->
+	<select id="getUnitMasterInfo" resultType="UnitMasterInfo">
+		<if test="fetchMissingCount">
+			WITH missing AS (
+				SELECT MASTER_ID, SUM(MISSING_INFO) AS missingCount
+				FROM SMC.V_SMC_UNIT_MISSING_INFO_AND_CONFLICTS
+				GROUP BY MASTER_ID
+			)
+		</if>
+		SELECT
+			mast.MASTER_ID,
+			mast.PO_NUMBER,
+			mast.UNIT_NUMBER,
+			mast.CORP AS corpCode,
+			vend.VENDOR_ID,
+			catsub.ASSOC_ID AS poCategoryAssociationId,
+			mast.UNIT_SIGNATURE AS previousUnitSignature,
+			mast.TEMPLATE_ID,
+			mast.TEMPLATE_HASH AS previousTemplateHash,
+			mast.TEMPLATE_REFRESH_DATE AS lastTemplateRefresh,
+			poMap.PAYABLE_STATUS,
+			<choose>
+				<when test="fetchMissingCount">
+					templateMaster.TEMPLATE_HASH AS masterTemplateHash,
+					dates.ACT_DEL_DATE AS actualDeliveryDate,
+					missing.missingCount AS missingInfoCount
+				</when>
+				<otherwise>
+					mast.TEMPLATE_HASH AS masterTemplateHash
+				</otherwise>
+			</choose>
+		FROM SMC.SMC_UNIT_MASTER mast
+		JOIN SMC.SMC_PURCHASING_HEADER purchHead on purchHead.PO_NUMBER = mast.PO_NUMBER
+		JOIN SMC.SMC_VENDOR_MASTER vend ON vend.VENDOR_NUMBER = purchHead.VENDOR_NUMBER and vend.CORP = purchHead.CORP
+		JOIN SMC.V_SMC_PO_CATEGORY_COMBINATIONS catsub ON catsub.CATEGORY = purchHead.PO_CATEGORY AND catsub.SUBCATEGORY = purchHead.PO_SUB_CATEGORY
+		JOIN SMC.SMC_PO_UNIT_MAP poMap ON poMap.MASTER_ID = mast.MASTER_ID AND poMap.CO_NUMBER = 0 AND poMap.CANCEL_SEQ = 0
+		<if test="fetchMissingCount">
+			JOIN SMC.SMC_TEMPLATE_MASTER templateMaster ON mast.TEMPLATE_ID = templateMaster.TEMPLATE_ID
+			JOIN SMC.SMC_UNIT_DATE_INFO dates ON dates.MASTER_ID = mast.MASTER_ID
+			LEFT JOIN missing ON missing.MASTER_ID = mast.MASTER_ID
+		</if>
+		WHERE mast.UNIT_NUMBER IN (
+			<foreach collection="unitNumbers" item="unitNumber" separator=",">#{unitNumber}</foreach>
+		)
+		  <!-- Ensure the POs are visible -->
+		  AND <include refid="visiblePoFilter" />
+	</select>
+	
+	<select id="getComponentMastersFromUnitComponent" resultMap="UnitComponentMasterMapping">
+		SELECT
+			mast.MASTER_ID,
+			unitComp.COMPONENT_ID,
+			compDetail.DISPLAY_NAME AS COMPONENT_NAME,
+			compDetail.COMPONENT_TYPE,
+			unitComp.BASE_VISIBILITY AS VISIBILITY,
+			additionalDetails.DECIMAL_POSITIONS,
+			additionalDetails.FIELD_LENGTH,
+			CASE WHEN unitComp.AVAIL_TO_OTHER_PO = 'Y' THEN 1 ELSE 0 END AS AVAIL_TO_OTHER_PO,
+			CASE WHEN unitComp.EXPORT_TO_EXCEL = 'Y' THEN 1 ELSE 0 END AS EXPORT_TO_EXCEL,
+			CASE WHEN compDetail.IS_VEHICLE_COMP = 'Y' THEN 1 ELSE 0 END AS VEHICLE_COMPONENT,
+			unitComp.MASTER_ID AS SAVED_MASTER_ID,
+			unitComp.COMPONENT_ID AS SAVED_COMPONENT_ID,
+			CASE WHEN unitComp.AVAIL_TO_OTHER_PO = 'Y' THEN 1 ELSE 0 END AS SAVED_AVAIL_TO_OTHER_PO,
+			CASE WHEN unitComp.EXPORT_TO_EXCEL = 'Y' THEN 1 ELSE 0 END AS SAVED_EXPORT_TO_EXCEL,
+			unitComp.BASE_VISIBILITY AS SAVED_BASE_VISIBILITY,
+			unitComp.RULE_VISIBILITY AS SAVED_RULE_VISIBILITY,
+			unitComp.FINAL_VISIBILITY AS SAVED_FINAL_VISIBILITY,
+			TRIM(unitComp.CONFLICT_STATUS) AS SAVED_CONFLICT_STATUS,
+			CASE WHEN unitComp.VALUE_PROVIDED = 'Y' THEN 1 ELSE 0 END AS SAVED_VALUE_PROVIDED
+		FROM SMC.SMC_UNIT_COMPONENT unitComp
+		JOIN SMC.SMC_UNIT_MASTER mast ON mast.MASTER_ID = unitComp.MASTER_ID
+		JOIN SMC.SMC_COMPONENT_INFO_DETAILS compDetail ON unitComp.COMPONENT_ID = compDetail.COMPONENT_ID
+		LEFT JOIN CORP.VEHCMPSG2F additionalDetails ON unitComp.COMPONENT_ID = additionalDetails.COMPONENT_ID
+		WHERE unitComp.MASTER_ID IN (
+			<foreach collection="unitMasters" item="unitMaster" separator=",">#{unitMaster.masterId}</foreach>
+		)
+	</select>
+	
+	<select id="getComponentMastersFromTemplate" resultMap="UnitComponentMasterMapping">
+		SELECT
+			mast.MASTER_ID,
+			template.COMPONENT_ID,
+			compDetail.DISPLAY_NAME AS COMPONENT_NAME,
+			compDetail.COMPONENT_TYPE,
+			template.COMPONENT_ACCESS AS VISIBILITY,
+			additionalDetails.DECIMAL_POSITIONS,
+			additionalDetails.FIELD_LENGTH,
+			CASE WHEN template.AVAIL_TO_OTHER_PO = 'Y' THEN 1 ELSE 0 END AS AVAIL_TO_OTHER_PO,
+			CASE WHEN template.EXPORT_TO_EXCEL = 'Y' THEN 1 ELSE 0 END AS EXPORT_TO_EXCEL,
+			CASE WHEN compDetail.IS_VEHICLE_COMP = 'Y' THEN 1 ELSE 0 END AS VEHICLE_COMPONENT,
+			unitComp.MASTER_ID AS SAVED_MASTER_ID,
+			unitComp.COMPONENT_ID AS SAVED_COMPONENT_ID,
+			CASE WHEN unitComp.AVAIL_TO_OTHER_PO = 'Y' THEN 1 ELSE 0 END AS SAVED_AVAIL_TO_OTHER_PO,
+			CASE WHEN unitComp.EXPORT_TO_EXCEL = 'Y' THEN 1 ELSE 0 END AS SAVED_EXPORT_TO_EXCEL,
+			unitComp.BASE_VISIBILITY AS SAVED_BASE_VISIBILITY,
+			unitComp.RULE_VISIBILITY AS SAVED_RULE_VISIBILITY,
+			unitComp.FINAL_VISIBILITY AS SAVED_FINAL_VISIBILITY,
+			TRIM(unitComp.CONFLICT_STATUS) AS SAVED_CONFLICT_STATUS,
+			CASE WHEN unitComp.VALUE_PROVIDED = 'Y' THEN 1 ELSE 0 END AS SAVED_VALUE_PROVIDED
+		FROM SMC.SMC_UNIT_MASTER mast
+		JOIN SMC.SMC_TEMPLATE_COMPONENTS template ON template.TEMPLATE_ID = mast.TEMPLATE_ID
+		JOIN SMC.SMC_COMPONENT_INFO_DETAILS compDetail ON template.COMPONENT_ID = compDetail.COMPONENT_ID
+		LEFT JOIN CORP.VEHCMPSG2F additionalDetails ON template.COMPONENT_ID = additionalDetails.COMPONENT_ID
+		LEFT JOIN SMC.SMC_UNIT_COMPONENT unitComp ON unitComp.MASTER_ID = mast.MASTER_ID AND unitComp.COMPONENT_ID = template.COMPONENT_ID
+		WHERE mast.MASTER_ID IN (
+			<foreach collection="unitMasters" item="unitMaster" separator=",">#{unitMaster.masterId}</foreach>
+		)
+	</select>
+	
+	<select id="getGlobalComponents" resultType="GlobalComponentMaster">
+		SELECT
+			compDetail.COMPONENT_ID AS componentId,
+			CAST(NULL AS CHAR(2)) AS previousConflictStatus,
+			CAST(0 AS INTEGER) AS availableOnOtherPO,
+			CAST(0 AS INTEGER) AS exportToExcel,
+			CAST(#{notVisibleConstant} AS CHAR(1)) AS visibility,
+			CAST(-1 AS INTEGER) AS masterId,
+			compDetail.DISPLAY_NAME AS componentName,
+			compDetail.COMPONENT_TYPE AS componentType,
+			CASE WHEN compDetail.IS_VEHICLE_COMP = 'Y' THEN 1 ELSE 0 END AS vehicleComponent,
+			additionalDetails.DECIMAL_POSITIONS AS decimalPositions
+		FROM SMC.SMC_COMPONENT_INFO_DETAILS compDetail
+		LEFT JOIN CORP.VEHCMPSG2F additionalDetails ON compDetail.COMPONENT_ID = additionalDetails.COMPONENT_ID
+		WHERE compDetail.COMPONENT_ID IN (
+			<foreach collection="componentIds" item="componentId" separator=",">#{componentId}</foreach>
+		)
+	</select>
+	
+	<select id="getCorpComponentValues" resultType="CorpComponentValue">
+		SELECT
+			comp.VEHICLE_NUMBER AS unitNumber,
+			comp.OWNING_CORP AS corpCode,
+			comp.S_COMPONENT_ID AS componentId,
+			mast.COMPONENT_TYPE AS componentType,
+			TRIM(comp.COMPONENT_TEXT) AS textValue,
+			comp.VALUE_15_0 AS numericValue,
+			CAST(NULL AS TIMESTAMP) AS dateValue
+		FROM (VALUES
+			<foreach collection="vehicleIds" item="vehicleId" separator=",">
+				(
+					CAST(#{vehicleId.paddedUnitNumber} AS VARCHAR(10)),
+					CAST(#{vehicleId.corpCode} AS VARCHAR(4))
+				)
+			</foreach>
+		) AS tmp (UNIT_NUMBER, CORP_CODE)
+		JOIN CORP.VEHCMPF comp ON comp.VEHICLE_NUMBER = tmp.UNIT_NUMBER AND comp.OWNING_CORP = tmp.CORP_CODE
+		JOIN CORP.VEHCMPSGF mast ON mast.COMPONENT_ID = COMP.S_COMPONENT_ID
+	</select>
+	
+	<select id="getSmcComponentValues" statementType="CALLABLE" resultMap="SmcComponentValueMapping">
+		{ CALL SMC.SMC_GET_UNIT_VEHICLE_COMPONENTS(
+			'<foreach collection="unitMasters" item="unitMaster" separator=",">${unitMaster.masterId}</foreach>'
+		)}
+	</select>
+	
+	<select id="getSavedUnitComponents" resultType="UnitComponent">
+		SELECT
+			uc.MASTER_ID,
+			uc.COMPONENT_ID,
+			CASE WHEN uc.AVAIL_TO_OTHER_PO = 'Y' THEN 1 ELSE 0 END AS availableOnOtherPO,
+			CASE WHEN uc.EXPORT_TO_EXCEL = 'Y' THEN 1 ELSE 0 END AS exportToExcel,
+			uc.BASE_VISIBILITY,
+			uc.RULE_VISIBILITY,
+			uc.FINAL_VISIBILITY,
+			TRIM(uc.CONFLICT_STATUS),
+			CASE WHEN uc.VALUE_PROVIDED = 'Y' THEN 1 ELSE 0 END AS valueProvided
+		FROM SMC.SMC_UNIT_COMPONENT uc
+		WHERE uc.MASTER_ID IN (
+			<foreach collection="unitMasters" item="unitMaster" separator=",">#{unitMaster.masterId}</foreach>
+		)
+	</select>
+	
+	<select id="getRules" resultMap="RuleMapping">
+		WITH rules AS (
+ 			SELECT DISTINCT ovr.RULE_ID, tempComp.TEMPLATE_ID
+ 			FROM SMC.SMC_TEMPLATE_COMPONENTS tempComp
+ 			JOIN SMC.SMC_COMPONENT_RULE_OVERRIDES ovr ON ovr.TEMP_COMP_ID = tempComp.TEMP_COMP_ID
+ 			<if test="unitMasters != null">
+	 			WHERE tempComp.TEMPLATE_ID in (
+	 				<foreach collection="unitMasters" item="unitMaster" separator=",">#{unitMaster.templateId}</foreach>
+	 			)
+ 			</if>
+ 		)
+ 		SELECT
+ 			rule.RULE_ID,
+ 			rules.TEMPLATE_ID,
+ 			TRIM(rule.NAME) AS NAME,
+ 			TRIM(rule.DESCRIPTION) AS DESCRIPTION,
+ 			rule.RULE_TYPE,
+ 			criteria.RULE_DEF_ID,
+ 			criteria.RULE_ID,
+ 			criteria.CRITERIA_GROUP,
+ 			criteria.COMPONENT_ID,
+ 			criteria.COMPONENT_TYPE,
+ 			criteria.OPERAND,
+ 			criteria.COMPONENT_VALUE
+ 		FROM SMC.SMC_CMP_VISIBILITY_RULES_MASTER rule
+ 		JOIN SMC.SMC_CMP_VISIBILITY_RULES_DEFINITION criteria ON criteria.RULE_ID = rule.RULE_ID
+ 		JOIN rules ON rules.RULE_ID = rule.RULE_ID
+ 		WHERE rule.RULE_TYPE = #{unitComponentRuleType}
+ 		ORDER BY rules.TEMPLATE_ID, rules.RULE_ID, criteria.CRITERIA_GROUP, criteria.COMPONENT_ID
+	</select>
+	
+	<select id="getOutcomes" resultType="RuleOutcome">
+		SELECT
+ 			ovr.CMP_RULES_ID,
+ 			tempComp.TEMPLATE_ID AS templateId,
+ 			ovr.RULE_ID,
+ 			tempComp.COMPONENT_ID,
+ 			ovr.PRIORITY,
+ 			ovr.VISIBILITY_OVERRIDE AS visibility
+ 		FROM SMC.SMC_TEMPLATE_COMPONENTS tempComp
+ 		JOIN SMC.SMC_COMPONENT_RULE_OVERRIDES ovr ON ovr.TEMP_COMP_ID = tempComp.TEMP_COMP_ID
+ 		<if test="unitMasters != null">
+	 		WHERE tempComp.TEMPLATE_ID in (
+	 			<foreach collection="unitMasters" item="unitMaster" separator=",">#{unitMaster.templateId}</foreach>
+	 		)
+ 		</if>
+ 		ORDER BY tempComp.COMPONENT_ID, ovr.PRIORITY
+	</select>
+	
+	<select id="getGlobalConflictResolutions" resultType="GlobalConflictResolution">
+		SELECT
+			globalRes.GLOBAL_EXCEPTION_ID,
+			globalRes.UNIT_SIGNATURE,
+			globalRes.COMPONENT_ID,
+			globalRes.PROVIDER_PO_CATEGORY_ASSOC_ID AS providerPoCategoryAssociationId,
+			globalRes.PROVIDER_VENDOR_ID
+		FROM SMC.SMC_GLOBAL_EXCEPTIONS globalRes
+		<if test="unitMasters != null">
+			WHERE globalRes.UNIT_SIGNATURE IN (
+				<foreach collection="unitMasters" item="unitMaster" separator=",">#{unitMaster.calculatedUnitSignature}</foreach>
+			)
+		</if>
+	</select>
+	
+	<!-- UPDATE / INSERT QUERIES -->
+	<update id="updateUnitMaster">
+		MERGE INTO SMC.SMC_UNIT_MASTER um
+			USING (VALUES
+				<foreach collection="unitMasters" item="unitMaster" separator=",">
+				(
+					CAST(#{unitMaster.masterId} AS INTEGER),
+					CAST(#{unitMaster.calculatedUnitSignature} AS VARCHAR(255)),
+					CAST(#{unitMaster.calculatedTemplateHash} AS VARCHAR(32)),
+					CAST(#{unitMaster.lastTemplateRefresh} AS TIMESTAMP)
+				)
+				</foreach>
+			) vals (
+				MASTER_ID, UNIT_SIGNATURE, TEMPLATE_HASH, TEMPLATE_REFRESH_DATE
+			) ON vals.MASTER_ID = um.MASTER_ID
+		WHEN MATCHED THEN UPDATE SET
+			UNIT_SIGNATURE = vals.UNIT_SIGNATURE,
+			TEMPLATE_HASH = vals.TEMPLATE_HASH,
+			IS_TEMPLATE_PROCESSED = CASE WHEN IS_TEMPLATE_PROCESSED = 'N' OR IS_TEMPLATE_PROCESSED IS NULL THEN 'Y' ELSE IS_TEMPLATE_PROCESSED END,
+			TEMPLATE_REFRESH_DATE = vals.TEMPLATE_REFRESH_DATE,
+			MODIFIED_BY = #{ssoId},
+			MODIFIED_DATE = CURRENT_TIMESTAMP
+	</update>
+	
+	<update id="markUnitMastersAsError">
+		UPDATE SMC.SMC_UNIT_MASTER SET
+			IS_TEMPLATE_PROCESSED = 'E',
+			MODIFIED_BY = #{ssoId},
+			MODIFIED_DATE = CURRENT_TIMESTAMP
+		WHERE UNIT_NUMBER IN (
+			<foreach collection="unitNumbers" item="unitNumber" separator=",">#{unitNumber}</foreach>
+		)
+	</update>
+	
+	<delete id="deleteOutdatedUnitComponents">
+		MERGE INTO SMC.SMC_UNIT_COMPONENT uc
+			USING (VALUES
+				<foreach collection="unitComponents" item="unitComponent" separator=",">
+				(
+					CAST(#{unitComponent.masterId} AS INTEGER),
+					CAST(#{unitComponent.componentId} AS INTEGER)
+				)
+				</foreach>
+			) vals (MASTER_ID, COMPONENT_ID) ON vals.MASTER_ID = uc.MASTER_ID AND vals.COMPONENT_ID = uc.COMPONENT_ID
+		WHEN MATCHED THEN DELETE
+	</delete>
+	
+	<update id="upsertUnitComponents">
+		MERGE INTO SMC.SMC_UNIT_COMPONENT uc
+			USING (VALUES
+				<foreach collection="components" item="component" separator=",">
+				(
+					CAST(#{component.masterId} AS INTEGER),
+					CAST(#{component.componentId} AS INTEGER),
+					CAST(<choose><when test="component.availableOnOtherPo">'Y'</when><otherwise>'N'</otherwise></choose> AS CHAR(1)),
+					CAST(<choose><when test="component.exportToExcel">'Y'</when><otherwise>'N'</otherwise></choose> AS CHAR(1)),
+					CAST(#{component.baseVisibility} AS CHAR(1)),
+					CAST(#{component.ruleVisibility} AS CHAR(1)),
+					CAST(#{component.conflictStatus, jdbcType=CHAR} AS CHAR(2)),
+					CAST(#{component.finalVisibility} AS CHAR(1)),
+					CAST(<choose><when test="component.valueProvided">'Y'</when><otherwise>'N'</otherwise></choose> AS CHAR(1))
+				)
+				</foreach>
+			) vals (
+				MASTER_ID, COMPONENT_ID, AVAIL_TO_OTHER_PO, EXPORT_TO_EXCEL, BASE_VISIBILITY, RULE_VISIBILITY, CONFLICT_STATUS, FINAL_VISIBILITY, VALUE_PROVIDED
+			) ON vals.MASTER_ID = uc.MASTER_ID AND vals.COMPONENT_ID = uc.COMPONENT_ID
+		WHEN MATCHED THEN UPDATE SET
+			AVAIL_TO_OTHER_PO = vals.AVAIL_TO_OTHER_PO,
+			EXPORT_TO_EXCEL = vals.EXPORT_TO_EXCEL,
+			BASE_VISIBILITY = vals.BASE_VISIBILITY,
+			RULE_VISIBILITY = vals.RULE_VISIBILITY,
+			CONFLICT_STATUS = vals.CONFLICT_STATUS,
+			FINAL_VISIBILITY = vals.FINAL_VISIBILITY,
+			VALUE_PROVIDED = vals.VALUE_PROVIDED,
+			MODIFIED_DATE = CURRENT_TIMESTAMP
+		WHEN NOT MATCHED THEN INSERT (
+			MASTER_ID,
+			COMPONENT_ID,
+			AVAIL_TO_OTHER_PO,
+			EXPORT_TO_EXCEL,
+			BASE_VISIBILITY,
+			RULE_VISIBILITY,
+			CONFLICT_STATUS,
+			FINAL_VISIBILITY,
+			VALUE_PROVIDED,
+			MODIFIED_DATE
+		) VALUES (
+			vals.MASTER_ID,
+			vals.COMPONENT_ID,
+			vals.AVAIL_TO_OTHER_PO,
+			vals.EXPORT_TO_EXCEL,
+			vals.BASE_VISIBILITY,
+			vals.RULE_VISIBILITY,
+			vals.CONFLICT_STATUS,
+			vals.FINAL_VISIBILITY,
+			vals.VALUE_PROVIDED,
+			CURRENT_TIMESTAMP
+		)
+	</update>
+</mapper>
