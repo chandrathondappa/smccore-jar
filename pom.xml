@@ -12,12 +12,11 @@
 
 	<groupId>com.penske.smc.common</groupId>
 	<artifactId>smccore</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<packaging>jar</packaging>
 
 	<name>SMC Core JAR</name>
-	<description>Common models and utilities available to all SMC
-		applications</description>
+	<description>Common models and utilities available to all SMC applications</description>
 
 	<properties>
 		<app-name>smccore</app-name>
