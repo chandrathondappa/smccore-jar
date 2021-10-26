@@ -79,10 +79,6 @@ public enum ProgramComponent
 	LIFTGATE_TARE_WEIGHT(14095085),
 	/** The reefer tare weight for the vehicle */
 	REEFER_TARE_WEIGHT(16095085),
-	/** The actual preceding date the unit master was delivered to its destination. */
-	PRECEDING_PO_ACTUAL_DELIVERY_DATE(18),
-	/** The preceding date the vendor estimates the unit master will be delivered to its destination. */
-	PRECEDING_PO_ESTIMATED_DELIVERY_DATE(19)
 	;
 	
 	private final int componentId;
@@ -106,9 +102,7 @@ public enum ProgramComponent
 	private static final Set<ProgramComponent> deliveryDateComponents = Collections.unmodifiableSet(new HashSet<ProgramComponent>(Arrays.asList(
 		ACTUAL_DELIVERY_DATE,
 		ESTIMATED_DELIVERY_DATE,
-		ORIGINAL_REQUESTED_DELIVERY_DATE,
-		PRECEDING_PO_ACTUAL_DELIVERY_DATE,
-		PRECEDING_PO_ESTIMATED_DELIVERY_DATE
+		ORIGINAL_REQUESTED_DELIVERY_DATE
 	)));
 	/** A set of components that should no longer show up on any template, no matter whether the template is old and not subject to being rebuilt anymore or not. */
 	private static final Set<ProgramComponent> disabledComponents = Collections.unmodifiableSet(new HashSet<ProgramComponent>(
