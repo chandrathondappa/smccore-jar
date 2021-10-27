@@ -23,8 +23,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<development.distribution.url>${repository.server.root}/salesnet-mvn-development-local/
-		</development.distribution.url>
+		<development.distribution.url>${repository.server.root}/salesnet-mvn-development-local/</development.distribution.url>
 	</properties>
 
 	<dependencies>
@@ -121,18 +120,6 @@
 			<artifactId>mockito-core</artifactId>
 			<version>2.7.22</version>
 			<scope>test</scope>
-		</dependency>
-		
-		<!-- Provided / Server JARs -->
-		<dependency>
-			<groupId>com.penske.mis.common.customlib.mssql</groupId>
-			<artifactId>sqljdbc4</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.penske.mis.common.customlib.mssql</groupId>
-			<artifactId>sqljdbc4</artifactId>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 	
