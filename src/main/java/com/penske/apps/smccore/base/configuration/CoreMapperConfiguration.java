@@ -62,13 +62,32 @@ import com.penske.apps.smccore.base.plugins.ClientInfoPlugin;
 import com.penske.apps.smccore.base.plugins.QueryLoggingPlugin;
 import com.penske.apps.smccore.base.util.SpringConfigUtil;
 import com.penske.apps.smccore.component.dao.unittemplate.UnitComponentMapperMarker;
+import com.penske.apps.smccore.component.domain.ComponentMaster;
 import com.penske.apps.smccore.component.domain.ComponentTypeAliasMarker;
+import com.penske.apps.smccore.component.domain.ComponentValue;
+import com.penske.apps.smccore.component.domain.GlobalConflictResolution;
+import com.penske.apps.smccore.component.domain.Rule;
+import com.penske.apps.smccore.component.domain.RuleBuilder;
+import com.penske.apps.smccore.component.domain.RuleCriteria;
+import com.penske.apps.smccore.component.domain.RuleCriteriaGroup;
+import com.penske.apps.smccore.component.domain.RuleOutcome;
+import com.penske.apps.smccore.component.domain.UnitDates;
 import com.penske.apps.smccore.component.domain.enums.CommentRequiredComplianceType;
 import com.penske.apps.smccore.component.domain.enums.ComponentRuleOperator;
 import com.penske.apps.smccore.component.domain.enums.ComponentType;
 import com.penske.apps.smccore.component.domain.enums.ConflictStatus;
+import com.penske.apps.smccore.component.domain.enums.NotVisibleBehavior;
+import com.penske.apps.smccore.component.domain.enums.ProgramComponent;
 import com.penske.apps.smccore.component.domain.enums.RuleType;
 import com.penske.apps.smccore.component.domain.enums.Visibility;
+import com.penske.apps.smccore.component.domain.unittemplate.CorpComponentValue;
+import com.penske.apps.smccore.component.domain.unittemplate.GlobalComponentMaster;
+import com.penske.apps.smccore.component.domain.unittemplate.OptionalComponentValue;
+import com.penske.apps.smccore.component.domain.unittemplate.SmcComponentValue;
+import com.penske.apps.smccore.component.domain.unittemplate.UnitComponent;
+import com.penske.apps.smccore.component.domain.unittemplate.UnitComponentMaster;
+import com.penske.apps.smccore.component.domain.unittemplate.UnitConflictResolver;
+import com.penske.apps.smccore.component.domain.unittemplate.UnitMasterInfo;
 
 /**
  * Sets up MyBatis configuration for the SMC core JAR. Expects that there will be a DataSource bean available for autowiring.
@@ -125,6 +144,27 @@ public class CoreMapperConfiguration
 			User.class,
 			VehicleIdentifier.class,
 			
+			//Component Domain classes
+			ComponentMaster.class,
+			ComponentValue.class,
+			GlobalConflictResolution.class,
+			Rule.class,
+			RuleBuilder.class,
+			RuleCriteria.class,
+			RuleCriteriaGroup.class,
+			RuleOutcome.class,
+			UnitDates.class,
+			
+			//Unit Template Domain classes
+			CorpComponentValue.class,
+			GlobalComponentMaster.class,
+			OptionalComponentValue.class,
+			SmcComponentValue.class,
+			UnitComponent.class,
+			UnitComponentMaster.class,
+			UnitConflictResolver.class,
+			UnitMasterInfo.class,
+			
 			//Enums
 			AlertType.class,
 			BuddySelectionType.class,
@@ -142,6 +182,16 @@ public class CoreMapperConfiguration
 			UserDepartment.class,
 			UserType.class,
 			VehicleCategory.class,
+			
+			//Component Enums
+			CommentRequiredComplianceType.class,
+			ComponentRuleOperator.class,
+			ComponentType.class,
+			ConflictStatus.class,
+			NotVisibleBehavior.class,
+			ProgramComponent.class,
+			RuleType.class,
+			Visibility.class,
 			
 		};
 		ALIAS_CLASSES = Arrays.asList(classes);
