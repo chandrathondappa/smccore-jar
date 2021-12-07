@@ -23,6 +23,8 @@ public enum ProgramComponent
 	ACTUAL_DELIVERY_DATE(		1),
 	/** The actual date the unit master was produced by the vendor. If this is filled in, the unit master was in fact produced, although it may not have been delivered yet. */
 	ACTUAL_PRODUCTION_DATE(		2),
+	/** The name of the customer ordering the unit. */
+	CUSTOMER_NAME(              4),		
 	/** The date the vendor estimates the unit master will be delivered to its destination. */
 	ESTIMATED_DELIVERY_DATE(	9),
 	/** The date the vendor estimates the unit master will be finished being produced. */
