@@ -190,15 +190,16 @@ public final class SpringConfigUtil
 	 * @param maxFileSize The size that any one log file should be allowed to grow to before it rolls over. This should be in bytes with the suffix of "KB", "MB", or "GB".
 	 * 	For more information, see https://logging.apache.org/log4j/2.x/manual/appenders.html#SizeBased_Triggering_Policy
 	 * @param maxBackupIndex The maximum number of rolled-over log files that will be kept upon rollover.
+	 * @param pattern The pattern to use to create log messages
 	 * @param logFilePath The path to the log file. Typically, this is an absolute path, like "/logs/apps/smcof/log.txt"
 	 * @return A reference to the appender, which can be passed to other parts of the log configuration (ex: adding the appender to a logger).
 	 */
-	public static AppenderRefComponentBuilder makeRollingFileAppender(ConfigurationBuilder<?> builder, String appenderName, String maxFileSize, int maxBackupIndex, String logFilePath)
+	public static AppenderRefComponentBuilder makeRollingFileAppender(ConfigurationBuilder<?> builder, String appenderName, String maxFileSize, int maxBackupIndex, String pattern, String logFilePath)
 	{
 		builder.add(builder.newAppender(appenderName, "RollingFile")
 			.addAttribute("fileName", logFilePath)
 			.addAttribute("filePattern", logFilePath + ".%i")
-			.add(builder.newLayout("PatternLayout").addAttribute("pattern", "%d %-5p (%F:%M():%L)  - %m%n"))
+			.add(builder.newLayout("PatternLayout").addAttribute("pattern", pattern))
 			.addComponent(builder.newComponent("SizeBasedTriggeringPolicy").addAttribute("size", maxFileSize))
 			.addComponent(builder.newComponent("DefaultRolloverStrategy")
 				.addAttribute("max", maxBackupIndex)
