@@ -18,7 +18,8 @@ import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.BeanCreationException;
 
 /**
@@ -35,7 +36,7 @@ import org.springframework.beans.factory.BeanCreationException;
 })
 public class QueryLoggingPlugin implements Interceptor
 {
-	private static final Logger logger = Logger.getLogger(QueryLoggingPlugin.class);
+	private static final Logger logger = LogManager.getLogger(QueryLoggingPlugin.class);
 
 	private final ConcurrentHashMap<String, Method> queriesById = new ConcurrentHashMap<String, Method>();
 

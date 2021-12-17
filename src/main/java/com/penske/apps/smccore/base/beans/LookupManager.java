@@ -6,7 +6,8 @@ package com.penske.apps.smccore.base.beans;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.penske.apps.smccore.base.dao.LookupDAO;
@@ -24,7 +25,7 @@ public class LookupManager
 	/** The document group name indicating a document type comes from the SalesNet system, as opposed to a user-added one. */
 	public static final String SALESNET_DOCUMENT_GROUP = "SALESNET";
 	public static final String USERS_DOCUMENT_GROUP = "USERDOCS";
-	private static final Logger logger = Logger.getLogger(LookupManager.class);
+	private static final Logger logger = LogManager.getLogger(LookupManager.class);
 	
 	private final LookupDAO lookupDAO;
 	

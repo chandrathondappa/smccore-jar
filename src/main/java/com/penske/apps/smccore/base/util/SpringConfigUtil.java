@@ -8,23 +8,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.type.TypeHandlerRegistry;
-import org.apache.log4j.Appender;
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Layout;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.net.SMTPAppender;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.core.appender.RollingFileAppender;
+import org.apache.logging.log4j.core.appender.SmtpAppender;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -186,73 +189,55 @@ public final class SpringConfigUtil
 	 */
 	public static String getLogConfiguration(String contextPath)
 	{
-		Enumeration<?> loggerEnum = LogManager.getCurrentLoggers();
-		Map<String, Logger> loggers = new TreeMap<>();
-		Set<Appender> appenders = new LinkedHashSet<>();
-		while(loggerEnum.hasMoreElements())
-		{
-			Logger l = (Logger) loggerEnum.nextElement();
-			
-			Enumeration<?> appenderEnum = l.getAllAppenders();
-			while(appenderEnum.hasMoreElements())
-			{
-				Appender a = (Appender) appenderEnum.nextElement();
-				appenders.add(a);
-			}
-			
-			if(l.getLevel() == null && l.getAdditivity() == true)
-				continue;
-			
-			loggers.put(l.getName(), l);
-		}
+		LoggerContext context = (LoggerContext) LogManager.getContext(false);
+		Configuration config = context.getConfiguration();
 		
-		Logger rootLogger = Logger.getRootLogger();
-		Enumeration<?> appenderEnum = rootLogger.getAllAppenders();
-		while(appenderEnum.hasMoreElements())
-		{
-			Appender a = (Appender) appenderEnum.nextElement();
-			appenders.add(a);
-			loggers.put("ROOT LOGGER", rootLogger);
-		}
-
-		StringBuilder sb = new StringBuilder("==== " + contextPath + " Log Configuration ====\n");
+		Map<String, Appender> appenders = config.getAppenders();
+		Map<String, LoggerConfig> loggers = new LinkedHashMap<>(config.getLoggers());
+		
+		StringBuilder sb = new StringBuilder("=== " + contextPath + " Log Configuration ===\n");
 		sb.append("  == Appenders ==\n");
-		for(Appender appender : appenders)
+		for(Entry<String, Appender> entry : appenders.entrySet())
 		{
-			Layout layout = appender.getLayout();
-			sb.append("  * ").append(appender.getClass().getName()).append("\n");
+			String name = entry.getKey();
+			Appender appender = entry.getValue();
+			sb.append("  * ").append(name).append(": ").append(appender.getClass().getName()).append("\n");
+			
+			Layout<?> layout = appender.getLayout();
 			if(layout instanceof PatternLayout)
 			{
 				PatternLayout patternLayout = (PatternLayout) layout;
 				sb.append("    Pattern: ").append(patternLayout.getConversionPattern()).append("\n");
 			}
+			else
+				sb.append("    Pattern: Not a PatternLayout (").append(layout.getClass().getName()).append(")\n");
 			
 			if(appender instanceof FileAppender)
 			{
 				FileAppender fileAppender = (FileAppender) appender;
-				sb.append("    Filename: " + fileAppender.getFile()).append("\n");
+				sb.append("    Filename: ").append(fileAppender.getFileName()).append("\n");
 			}
-			else if(appender instanceof SMTPAppender)
+			else if(appender instanceof RollingFileAppender)
 			{
-				SMTPAppender emailAppender = (SMTPAppender) appender;
-				sb.append("    From: ").append(emailAppender.getFrom()).append("\n");
-				sb.append("    To: ").append(emailAppender.getTo()).append("\n");
-				sb.append("    Subject: ").append(emailAppender.getSubject()).append("\n");
+				RollingFileAppender fileAppender = (RollingFileAppender) appender;
+				sb.append("    Filename: ").append(fileAppender.getFileName()).append("\n");
 			}
-			
-			sb.append("\n");
+			else if(appender instanceof SmtpAppender)
+			{
+				SmtpAppender emailAppender = (SmtpAppender) appender;
+				sb.append("    Properties: ").append(emailAppender.getPropertyArray()).append("\n");
+			}
 		}
 		
-		sb.append("  == Loggers ==\n");
-		for(Logger logger : loggers.values())
+		sb.append("\n  == Loggers ==\n");
+		for(Entry<String, LoggerConfig> entry: loggers.entrySet())
 		{
-			//Skip loggers that have the same level as the root and have default additivity
-			if(logger.getLevel() == null && logger.getAdditivity() == true)
-				continue;
+			String name = StringUtils.isBlank(entry.getKey()) ? "ROOT LOGGER" : entry.getKey();
+			LoggerConfig logger = entry.getValue();
 			
-			sb.append("  * ").append(logger.getName())
-				.append(" (Level: ").append(logger.getLevel()).append(")");
-			if(logger.getAdditivity() == false)
+			sb.append("  * ").append(name).append(" (Level: ").append(logger.getLevel()).append(")");
+			
+			if(!logger.isAdditive())
 				sb.append(" - Additivity: false");
 			sb.append("\n");
 		}
