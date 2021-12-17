@@ -23,10 +23,10 @@ import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.FileAppender;
 import org.apache.logging.log4j.core.appender.RollingFileAppender;
-import org.apache.logging.log4j.core.appender.SmtpAppender;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
-import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.core.config.builder.api.AppenderRefComponentBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
@@ -183,6 +183,22 @@ public final class SpringConfigUtil
 		return false;
 	}
 
+	public static AppenderRefComponentBuilder makeRollingFileAppender(ConfigurationBuilder<?> builder, String appenderName, String logFilePath)
+	{
+		builder.add(builder.newAppender(appenderName, "RollingFile")
+			.addAttribute("fileName", logFilePath)
+			.addAttribute("filePattern", logFilePath + ".%i")
+			.add(builder.newLayout("PatternLayout").addAttribute("pattern", "%d %-5p (%F:%M():%L)  - %m%n"))
+			.addComponent(builder.newComponent("SizeBasedTriggeringPolicy").addAttribute("size", "5KB"))
+			.addComponent(builder.newComponent("DefaultRolloverStrategy")
+				.addAttribute("max", 10)
+				.addAttribute("fileIndex", "min")
+			)
+		);
+		
+		return builder.newAppenderRef(appenderName);
+	}
+	
 	/**
 	 * Gets a summary of the current log4j configuration to the info logs
 	 * @param contextPath The portion of the URL path that gives what application the log configuration is being printed for
@@ -221,11 +237,6 @@ public final class SpringConfigUtil
 			{
 				RollingFileAppender fileAppender = (RollingFileAppender) appender;
 				sb.append("    Filename: ").append(fileAppender.getFileName()).append("\n");
-			}
-			else if(appender instanceof SmtpAppender)
-			{
-				SmtpAppender emailAppender = (SmtpAppender) appender;
-				sb.append("    Properties: ").append(emailAppender.getPropertyArray()).append("\n");
 			}
 		}
 		
