@@ -14,7 +14,7 @@ public enum VehicleCategory implements MappedEnum
 	TRAILER(PoCategoryType.TRAILER),
 	CAR(PoCategoryType.CAR),
 	BODY(PoCategoryType.BODY),
-	OTHER(PoCategoryType.REEFER),
+	OTHER(PoCategoryType.DOLLY),
 	;
 	
 	/** The type of PO that would probably need to be issued for the chassis if this type of vehicle is selected */
