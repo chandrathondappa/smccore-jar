@@ -6,9 +6,9 @@
 	<!-- SELECT QUERIES -->
 	<select id="getLookupCacheInfo" resultType="LookupCacheInfo">
 		SELECT
-			COALESCE(MAX(total.lookupModified), '1970-01-01') AS lookupModified,
+			COALESCE(MAX(total.lookupModified), CAST('1970-01-01 00:00:00.000' AS TIMESTAMP)) AS lookupModified,
 			COALESCE(MAX(total.lookupCount), 0) AS lookupCount,
-			COALESCE(MAX(total.doctypeMasterModified), '1970-01-01') AS doctypeMasterModified,
+			COALESCE(MAX(total.doctypeMasterModified), CAST('1970-01-01 00:00:00.000' AS TIMESTAMP)) AS doctypeMasterModified,
 			COALESCE(MAX(total.doctypeCount), 0) AS doctypeCount
 		FROM (
 			(
