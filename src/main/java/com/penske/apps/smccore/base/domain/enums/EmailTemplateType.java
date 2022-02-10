@@ -26,6 +26,9 @@ public enum EmailTemplateType implements MappedEnum
 	LOADER_PEND_COST("LOADER_PEND_COST"),
 	/** Notification to a salea associate that spec confirmation has been enabled on a given deal. */
 	SPEC_CONFIRMATION("SPEC_CONFIRMATION"),
+	/** Eamil sent to new users with their SSO, OTP, and links to register and log into the application */
+	NEW_USER("NEW_USER")
+	
 	;
 	
 	private final String code;
