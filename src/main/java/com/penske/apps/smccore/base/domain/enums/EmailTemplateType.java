@@ -27,7 +27,7 @@ public enum EmailTemplateType implements MappedEnum
 	/** Notification to a salea associate that spec confirmation has been enabled on a given deal. */
 	SPEC_CONFIRMATION("SPEC_CONFIRMATION"),
 	/** A new user was added to the system. */
-	NEW_USER("NEW_USER"),
+	NEW_VENDOR_USER("NEW_VENDOR_USER"),
 	/** Vendor user already in LDAP, but just created in SMC. */
 	EXISTING_VENDOR_USER("EXISTING_VENDOR_USER"),
 	/** E-mail to Analyst that a new Vendor is assigned. */
