@@ -29,7 +29,7 @@ public enum EmailTemplateType implements MappedEnum
 	/** A new user was added to the system. */
 	NEW_USER("NEW_USER"),
 	/** Vendor user already in LDAP, but just created in SMC. */
-	EXISTING_USER("EXISTING_USER"),
+	EXISTING_VENDOR_USER("EXISTING_VENDOR_USER"),
 	/** E-mail to Analyst that a new Vendor is assigned. */
 	VENDOR_ASSIGNED("VENDOR_ASSIGNED"),
 	/** MassUpload used in SMCNOTIFY. */
