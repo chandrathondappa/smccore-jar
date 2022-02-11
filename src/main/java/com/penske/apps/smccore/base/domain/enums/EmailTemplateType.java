@@ -26,6 +26,18 @@ public enum EmailTemplateType implements MappedEnum
 	LOADER_PEND_COST("LOADER_PEND_COST"),
 	/** Notification to a salea associate that spec confirmation has been enabled on a given deal. */
 	SPEC_CONFIRMATION("SPEC_CONFIRMATION"),
+	/** A new user was added to the system. */
+	NEW_USER("NEW_USER"),
+	/** Vendor User created. */
+	EXISTING_USER("EXISTING_USER"),
+	/** E-mail to Analyst that a new Vendor is assigned. */
+	VENDOR_ASSIGNED("VENDOR_ASSIGNED"),
+	/** MassUpload used in SMCNOTIFY. */
+	MASS_UPLOAD("MASS_UPLOAD"),
+	/** Loadsheet created with a Category/Subcatergory combination not within the Unit Templates. */
+	UNIT_TEMPLATE("UNIT_TEMPLATE"),
+	/** It is for using in JUnit tests. */
+	UNKNOWN("UNKNOWN"),
 	;
 	
 	private final String code;
