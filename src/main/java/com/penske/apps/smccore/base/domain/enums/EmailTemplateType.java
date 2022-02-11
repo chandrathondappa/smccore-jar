@@ -36,8 +36,6 @@ public enum EmailTemplateType implements MappedEnum
 	MASS_UPLOAD("MASS_UPLOAD"),
 	/** Loadsheet created with a Category/Subcatergory combination not within the Unit Templates. */
 	UNIT_TEMPLATE("UNIT_TEMPLATE"),
-	/** It is for using in JUnit tests. */
-	UNKNOWN("UNKNOWN"),
 	;
 	
 	private final String code;

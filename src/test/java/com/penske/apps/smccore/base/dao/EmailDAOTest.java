@@ -64,14 +64,14 @@ public class EmailDAOTest extends MyBatisDaoTest
 	@Test
 	public void shouldInsertSmcEmail()
 	{
-		SmcEmail email = new SmcEmail(EmailTemplateType.UNKNOWN, "600555555", "test@penske.com", "testcc@penske.com", "testbcc@penske.com", "Test Body", "Test Subject");
+		SmcEmail email = new SmcEmail(EmailTemplateType.MASS_UPLOAD, "600555555", "test@penske.com", "testcc@penske.com", "testbcc@penske.com", "Test Body", "Test Subject");
 		dao.insertSmcEmail(email);
 	}
 	
 	@Test
 	public void shouldInsertEmailDocuments()
 	{
-		SmcEmail email = new SmcEmail(EmailTemplateType.UNKNOWN, "600555555", "test@penske.com", "testcc@penske.com", "testbcc@penske.com", "Test Body", "Test Subject");
+		SmcEmail email = new SmcEmail(EmailTemplateType.MASS_UPLOAD, "600555555", "test@penske.com", "testcc@penske.com", "testbcc@penske.com", "Test Body", "Test Subject");
 		CoreTestUtil.set(email, "emailAuditId", 555);
 		
 		List<SmcEmailDocument> docs = Arrays.asList(
