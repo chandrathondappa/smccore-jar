@@ -100,6 +100,8 @@ public enum LookupKey
 	EBS_FROM_ADDRESS("EBS_FROM_ADDRESS"),
 	/** The priority in EBS with which SMC notification emails get sent */
 	EBS_PRIORITY("EBS_PRIORITY"),
+	/** The high priority in EBS with which important SMC notification emails get sent */
+	EBS_HIGH_PRIORITY("EBS_HIGH_PRIORITY"),
 	;
 
 	private static final Map<String, LookupKey> valuesByDbName = new HashMap<String, LookupKey>();

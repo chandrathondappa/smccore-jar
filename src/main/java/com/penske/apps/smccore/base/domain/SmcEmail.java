@@ -2,6 +2,8 @@ package com.penske.apps.smccore.base.domain;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.penske.apps.smccore.base.domain.enums.EmailTemplateType;
+
 /**
  * An email message that should get sent from SMC to one or more users
  */
@@ -20,6 +22,8 @@ public class SmcEmail {
 	private String body;
 	/** The subject for the email. Can't be null*/
 	private String subject;
+	/** The name of the email template. Can't be null*/
+	private EmailTemplateType emailType;
 	
 	/** Constructor for MyBattis*/
 	protected SmcEmail(){}
@@ -32,7 +36,9 @@ public class SmcEmail {
 	 * @param body The body for the email. Body is NOT required for the email
 	 * @param subject The subject for the email. Subject IS required for the email
 	 * */
-	public SmcEmail(String userSso, String toAddress, String ccAddress, String bccAddress, String body, String subject) {
+	public SmcEmail(EmailTemplateType emailType, String userSso, String toAddress, String ccAddress, String bccAddress, String body, String subject) {
+		if(emailType == null)
+			throw new IllegalArgumentException("Every email must have a email template type.");
 		if(StringUtils.isBlank(userSso))
 			throw new IllegalArgumentException("Every email must have a user that created it.");
 		if(StringUtils.isBlank(toAddress))
@@ -40,6 +46,7 @@ public class SmcEmail {
 		if(StringUtils.isBlank(subject))
 			throw new IllegalArgumentException("Every email must have a Subject.");
 		
+		this.emailType = emailType;
 		this.sso = userSso;
 		this.toAddress = toAddress;
 		this.ccAddress = ccAddress;
@@ -76,5 +83,9 @@ public class SmcEmail {
 	public Integer getEmailAuditId()
 	{
 		return emailAuditId;
+	}
+
+	public EmailTemplateType getEmailType() {
+		return emailType;
 	}
 }

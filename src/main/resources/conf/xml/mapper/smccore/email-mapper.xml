@@ -14,6 +14,7 @@
 
 	<insert id="insertSmcEmail" useGeneratedKeys="true" keyProperty="email.emailAuditId">
 		INSERT INTO SMC.SMC_EMAIL (
+			EMAIL_TYPE,
 			USER_SSO,
 			TO_ADDRESS,
 			CC_ADDRESS,
@@ -24,6 +25,7 @@
 			CREATED_BY,
 			IS_PROCESSED
 		) VALUES (
+			#{email.emailType},
 			#{email.sso},
 			#{email.toAddress},
 			#{email.ccAddress},
