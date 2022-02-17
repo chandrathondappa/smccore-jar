@@ -21,7 +21,7 @@ public enum LookupKey
 	/** The email address that external vendor users can send to for assistance with the application */
 	CUSTOMER_SERVICE_EMAIL("PENSKE_CUST_SERVICE_EMAIL"),
 	/** Phone number for the Penske IT service desk */
-	IT_SERVICE_PHONE_NUM("PENSKE_CUST_SERVICE_TOLL_FREE"),
+	IT_SERVICE_PHONE_NUM("PENSKE_IT_SERVICE_TOLL_FREE"),
 	/** Email address for eh Penske IT service desk */
 	IT_SERVICE_EMAIL("PENSKE_IT_SERVICE_EMAIL"),
 	/** The list of email addresses to send warning emails to if a loadsheet is created before the corresponding unit template */
