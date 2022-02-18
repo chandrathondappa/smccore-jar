@@ -71,7 +71,9 @@ public final class CoreTestUtil
 			createLookupItem(LookupKey.SERVICE_VEHICLE_GROUP_CODE, "B", seq++),
 			createLookupItem(LookupKey.SERVICE_VEHICLE_GROUP_CODE, "C", seq++),
 			createLookupItem(LookupKey.SERVICE_VEHICLE_GROUP_CODE, "D", seq++),
-			createLookupItem(LookupKey.SERVICE_VEHICLE_GROUP_CODE, "E", seq++)
+			createLookupItem(LookupKey.SERVICE_VEHICLE_GROUP_CODE, "E", seq++),
+			createLookupItem(LookupKey.EBS_PRIORITY, "0", seq++),
+			createLookupItem(LookupKey.EBS_HIGH_PRIORITY, "9", seq++)
 		);
 		
 		List<DocTypeMaster> salesnetDocTypes = Arrays.asList(
