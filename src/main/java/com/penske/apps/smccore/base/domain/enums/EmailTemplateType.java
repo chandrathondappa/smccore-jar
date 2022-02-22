@@ -36,6 +36,10 @@ public enum EmailTemplateType implements MappedEnum
 	MASS_UPLOAD("MASS_UPLOAD"),
 	/** Loadsheet created with a Category/Subcatergory combination not within the Unit Templates. */
 	UNIT_TEMPLATE("UNIT_TEMPLATE"),
+	/** Unit updates completed without error. */
+	UNIT_UPDATES_NO_ERR("UNIT_UPDATES_NO_ERR"),
+	/** Unit updates processed with error(s). */
+	UNIT_UPDATES_ERR("UNIT_UPDATES_ERR"),
 	;
 	
 	private final String code;
