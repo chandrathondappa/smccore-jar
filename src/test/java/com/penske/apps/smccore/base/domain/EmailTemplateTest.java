@@ -22,13 +22,15 @@ public class EmailTemplateTest
 	@Test
 	public void shouldGetActualSubject()
 	{
-		EmailTemplate template = CoreTestUtil.createEmailTemplate(EmailTemplateType.DAILY_BATCH, "Hello, [USER_NAME], DCN [DCN_NUMBER] is ready", "Test body");
+		EmailTemplate template = CoreTestUtil.createEmailTemplate(EmailTemplateType.DAILY_BATCH, "Hello, [USER_NAME], DCN [DCN_NUMBER] is [BLANK] already [NULL] ready", "Test body");
 		String actualSubject = template.getActualSubject(Arrays.asList(
 			Pair.of("[USER_NAME]", "Joe Smith"),
-			Pair.of("[DCN_NUMBER]", "12345")
+			Pair.of("[DCN_NUMBER]", "12345"),
+			Pair.of("[BLANK]", ""),
+			Pair.of("[NULL]", null)
 		));
 		
-		assertThat(actualSubject, is("Hello, Joe Smith, DCN 12345 is ready"));
+		assertThat(actualSubject, is("Hello, Joe Smith, DCN 12345 is  already  ready"));
 	}
 	
 	@Test

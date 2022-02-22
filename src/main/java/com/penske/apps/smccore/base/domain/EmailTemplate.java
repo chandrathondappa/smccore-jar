@@ -45,7 +45,11 @@ public class EmailTemplate
 		
 		//Perform the desired replacements on the string sequentially, replacing a single token each time
 		for(Pair<String, String> replacement : placeholderReplacements)
-			str = StringUtils.replace(str, replacement.getLeft(), replacement.getRight(), 1);
+		{
+			String chunkToReplace = replacement.getLeft();
+			String newString = StringUtils.defaultString(replacement.getRight());
+			str = StringUtils.replace(str, chunkToReplace, newString, 1);
+		}
 		
 		return str;
 	}

@@ -16,18 +16,22 @@ public enum LookupKey
 	//***** Emails / Phone Numbers / URLs *****//
 	/** The phone number that internal users should call for assistance with the application. */
 	SUPPORT_PHONE_NUM("SUPPORT_NUM"),
+	/** The phone number that vendor users should call for questions, as given in daily batch summary emails. */
+	DAILY_BATCH_SUPPORT_PHONE("DAILY_SUPPORT_PHONE"),
 	/** The phone number that external vendor users should call for assistance with the application. */
 	CUSTOMER_SERVICE_PHONE_NUM("PENSKE_CUST_SERVICE_TOLL_FREE"),
 	/** The email address that external vendor users can send to for assistance with the application */
 	CUSTOMER_SERVICE_EMAIL("PENSKE_CUST_SERVICE_EMAIL"),
 	/** Phone number for the Penske IT service desk */
 	IT_SERVICE_PHONE_NUM("PENSKE_IT_SERVICE_TOLL_FREE"),
-	/** Email address for eh Penske IT service desk */
+	/** Email address for the Penske IT service desk */
 	IT_SERVICE_EMAIL("PENSKE_IT_SERVICE_EMAIL"),
 	/** The list of email addresses to send warning emails to if a loadsheet is created before the corresponding unit template */
 	UNIT_TEMPLATE_EMAIL_LIST("UNIT_TEMPLATE_EMAIL_LIST"),
 	/** The external entry point for the SMC application, for inclusion in vendor emails. */
 	SMC_APP_LINK("SMC_APPLICATION_URL"),
+	/** The external entry point for the SMC application, as given in daily batch summary emails. */
+	DAILY_BATCH_APP_LINK("DAILY_APP_LINK"),
 	/** The link that external vendor users can go to in order to get to their SSO login page */
 	PENSKE_SIGN_ON_URL("PENSKE_SIGN_ON_URL"),
 	
