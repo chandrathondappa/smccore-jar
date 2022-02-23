@@ -12,8 +12,6 @@ public enum EmailTemplateType implements MappedEnum
 	DEAL_PEND("DEALPEND"),
 	/** A deal was prioritized and assigned to a buyer */
 	DEAL_PRIORITIZED("NOTIFYSALESPERSON"),
-	/** Email sent to someone that has actionable items when daily batch runs */
-	DAILY_BATCH("DAILYBATCH"),
 	/** Email sent to summarize the alerts a person has when daily batch runs */
 	DAILY_SUMMARY_BATCH("DAILY_SUMMARY_BATCH_NEW"),
 	/** Batch unit updates were processed successfully */

@@ -22,7 +22,7 @@ public class EmailTemplateTest
 	@Test
 	public void shouldGetActualSubject()
 	{
-		EmailTemplate template = CoreTestUtil.createEmailTemplate(EmailTemplateType.DAILY_BATCH, "Hello, [USER_NAME], DCN [DCN_NUMBER] is [BLANK] already [NULL] ready", "Test body");
+		EmailTemplate template = CoreTestUtil.createEmailTemplate(EmailTemplateType.DAILY_SUMMARY_BATCH, "Hello, [USER_NAME], DCN [DCN_NUMBER] is [BLANK] already [NULL] ready", "Test body");
 		String actualSubject = template.getActualSubject(Arrays.asList(
 			Pair.of("[USER_NAME]", "Joe Smith"),
 			Pair.of("[DCN_NUMBER]", "12345"),
@@ -36,7 +36,7 @@ public class EmailTemplateTest
 	@Test
 	public void shouldgetActualBody()
 	{
-		EmailTemplate template = CoreTestUtil.createEmailTemplate(EmailTemplateType.DAILY_BATCH, "Test subject", "Hello, %, DCN % is ready");
+		EmailTemplate template = CoreTestUtil.createEmailTemplate(EmailTemplateType.DAILY_SUMMARY_BATCH, "Test subject", "Hello, %, DCN % is ready");
 		String actualBody = template.getActualBody(Arrays.asList(
 			Pair.of("%", "Joe Smith"),
 			Pair.of("%", "12345")
