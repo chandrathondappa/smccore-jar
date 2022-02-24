@@ -53,6 +53,23 @@ public class UserService
     		return users.get(0);
     }
 	
+	/**
+	 * Gets basic information about a single user, but does not look up security functions or associated vendors for the user.
+	 * @param sso The SSO of the user to look up
+	 * @return The user
+	 */
+	public User getUserWithoutSecurityFunctions(String sso)
+	{
+		if(StringUtils.isBlank(sso))
+			return null;
+		
+		List<User> users = userDAO.getUsers(sso, null, null, false, false);
+		if(users == null || users.isEmpty())
+			return null;
+		else
+			return users.get(0);
+	}
+	
     /**
      * Gets all users matching a given user type and department.
      * Does not look up security functions for those users, so calling {@link User#getSecurityFunctions()} on the returned users will throw an exception.

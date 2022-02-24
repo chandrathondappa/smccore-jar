@@ -22,6 +22,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
@@ -29,13 +30,16 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.penske.apps.smccore.base.beans.LookupManager;
+import com.penske.apps.smccore.base.domain.ConfirmationAlertData;
 import com.penske.apps.smccore.base.domain.DocTypeMaster;
 import com.penske.apps.smccore.base.domain.EmailTemplate;
 import com.penske.apps.smccore.base.domain.FulfillmentAlertData;
 import com.penske.apps.smccore.base.domain.LookupCacheInfo;
 import com.penske.apps.smccore.base.domain.LookupContainer;
 import com.penske.apps.smccore.base.domain.LookupItem;
+import com.penske.apps.smccore.base.domain.ProductionAlertData;
 import com.penske.apps.smccore.base.domain.User;
+import com.penske.apps.smccore.base.domain.enums.AlertType;
 import com.penske.apps.smccore.base.domain.enums.EmailTemplateType;
 import com.penske.apps.smccore.base.domain.enums.LookupKey;
 import com.penske.apps.smccore.base.domain.enums.PayableStatus;
@@ -157,6 +161,61 @@ public final class CoreTestUtil
 		set(result, "emailType", emailType);
 		set(result, "subjectTemplate", subjectTemplate);
 		set(result, "bodyTemplate", bodyTemplate);
+		return result;
+	}
+	
+	public static ConfirmationAlertData createConfirmationAlertData(Map<AlertType, Integer> alerts)
+	{
+		if(alerts == null)
+			alerts = Collections.emptyMap();
+		
+		ConfirmationAlertData result = newInstance(ConfirmationAlertData.class);
+		for(Entry<AlertType, Integer> alert : alerts.entrySet())
+		{
+			String fieldName;
+			switch(alert.getKey())
+			{
+			case OC_PURCHASE_ORDER: 		fieldName = "purchaseOrderCount"; break;
+			case OC_CHANGE_ORDER:			fieldName = "changeOrderCount"; break;
+			case OC_CANC_ORDER:				fieldName = "cancellationCount"; break;
+			default: fieldName = null;
+			}
+			
+			if(StringUtils.isNotBlank(fieldName))
+				set(result, fieldName, alert.getValue());
+		}
+		
+		return result;
+	}
+	
+	public static ProductionAlertData createProductionAlertData(Map<AlertType, Integer> alerts)
+	{
+		if(alerts == null)
+			alerts = Collections.emptyMap();
+		
+		ProductionAlertData result = newInstance(ProductionAlertData.class);
+		for(Entry<AlertType, Integer> alert : alerts.entrySet())
+		{
+			String fieldName;
+			switch(alert.getKey())
+			{
+			case PROD_EST_PROD_PAST_DUE:	fieldName = "estProductionDatePastDueCount"; break;
+			case PROD_EST_DELV_PAST_DUE:	fieldName = "estDeliveryDatePastDueCount"; break;
+			case PROD_PROD_HOLDS:			fieldName = "prodHoldsCount"; break;
+			case ALL_MISSING_INFO:			fieldName = "missingInfoCount"; break;
+			case PROD_DATA_CONFLICT:		fieldName = "dataConflictCount"; break;
+			case PROD_DELAY_COMM_REQ:		fieldName = "delayCommReqCount"; break;
+			case PROD_PROD_DT_EARLY:		fieldName = "prodDateEarlyCount"; break;
+			case PROD_PROD_DT_LATE:			fieldName = "prodDateLateCount"; break;
+			case PROD_DELV_DT_EARLY:		fieldName = "deliveryDateEarlyCount"; break;
+			case PROD_DELV_DT_LATE:			fieldName = "deliveryDateLateCount"; break;
+			default: fieldName = null;
+			}
+			
+			if(StringUtils.isNotBlank(fieldName))
+				set(result, fieldName, alert.getValue());
+		}
+		
 		return result;
 	}
 	
