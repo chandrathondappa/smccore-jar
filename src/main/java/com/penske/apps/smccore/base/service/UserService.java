@@ -46,24 +46,22 @@ public class UserService
     	if(StringUtils.isBlank(sso))
     		return null;
     	
-    	List<User> users = userDAO.getUsers(sso, null, null, true, loadAssociatedVendors);
-    	if(users == null || users.isEmpty())
-    		return null;
-    	else
-    		return users.get(0);
+    	return getUser(sso, loadAssociatedVendors, true);
     }
 	
 	/**
-	 * Gets basic information about a single user, but does not look up security functions or associated vendors for the user.
+	 * Gets basic information about a single user.
 	 * @param sso The SSO of the user to look up
-	 * @return The user
+	 * @param loadAssociatedVendors True to load the user's associated vendor IDs. False to skip loading those. 
+	 * @param loadSecurityFunctions True to load the user's security functions. False to skip loading those.
+	 * @return The user, optionally loaded with vendors and security functions
 	 */
-	public User getUserWithoutSecurityFunctions(String sso)
+	public User getUser(String sso, boolean loadAssociatedVendors, boolean loadSecurityFunctions)
 	{
 		if(StringUtils.isBlank(sso))
 			return null;
 		
-		List<User> users = userDAO.getUsers(sso, null, null, false, false);
+		List<User> users = userDAO.getUsers(sso, null, null, loadSecurityFunctions, loadAssociatedVendors);
 		if(users == null || users.isEmpty())
 			return null;
 		else
