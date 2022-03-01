@@ -87,7 +87,9 @@ public enum SecurityFunction
 	COST_SHEET_TOLERANCES,
 
 	OEM_BUILD_MATRIX,
-	OEM_BUILD_MATRIX_DEBUG;
+	OEM_BUILD_MATRIX_DEBUG,
+
+	EXPORT_VENDOR_ACTIVITY;
 	
 	/** Reverse-lookup map to find a security function by its enum constant name */
 	private static Map<String, SecurityFunction> functionsByName = Stream.of(SecurityFunction.values()).collect(toMap(SecurityFunction::name, x -> x));
