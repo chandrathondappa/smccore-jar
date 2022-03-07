@@ -8,6 +8,7 @@ import static java.util.stream.Collectors.toSet;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -39,6 +40,7 @@ import com.penske.apps.smccore.base.domain.LookupContainer;
 import com.penske.apps.smccore.base.domain.LookupItem;
 import com.penske.apps.smccore.base.domain.ProductionAlertData;
 import com.penske.apps.smccore.base.domain.User;
+import com.penske.apps.smccore.base.domain.UserLogin;
 import com.penske.apps.smccore.base.domain.enums.AlertType;
 import com.penske.apps.smccore.base.domain.enums.EmailTemplateType;
 import com.penske.apps.smccore.base.domain.enums.LookupKey;
@@ -246,6 +248,16 @@ public final class CoreTestUtil
 		return user;
 	}
 
+	public static UserLogin createUserLogin(int loginId, User user)
+	{
+		UserLogin result = newInstance(UserLogin.class);
+		set(result, "loginId", loginId);
+		set(result, "sso", user.getSso());
+		set(result, "serverLocation", "apps.pensketruckleasing.net");
+		set(result, "loginTime", LocalDateTime.now());
+		return result;
+	}
+	
 	public static FulfillmentAlertData createFulfillmentAlertData(int working, int pending, int readyToOrder)
 	{
 		FulfillmentAlertData result = newInstance(FulfillmentAlertData.class);

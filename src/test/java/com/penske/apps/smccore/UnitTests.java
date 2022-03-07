@@ -10,6 +10,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import com.penske.apps.smccore.base.beans.LookupManagerTest;
 import com.penske.apps.smccore.base.domain.EmailTemplateTest;
 import com.penske.apps.smccore.base.domain.LookupContainerTest;
+import com.penske.apps.smccore.base.domain.UserSecurityTest;
 import com.penske.apps.smccore.base.service.UserServiceTest;
 import com.penske.apps.smccore.base.util.BatchCallableTest;
 import com.penske.apps.smccore.base.util.DateUtilTest;
@@ -45,6 +46,7 @@ import com.penske.apps.smccore.component.service.CalculatedDataServiceTest;
 	ComponentRuleOperatorTest.class,
 	ComponentVisibilityFilterTest.class,
 	EmailTemplateTest.class,
+	UserSecurityTest.class,
 	
 	//Service Tests
 	UserServiceTest.class,

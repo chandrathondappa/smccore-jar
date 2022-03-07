@@ -4,6 +4,7 @@
 package com.penske.apps.smccore;
 
 import com.penske.apps.smccore.base.domain.User;
+import com.penske.apps.smccore.base.domain.UserSecurity;
 import com.penske.apps.smccore.base.domain.enums.UserType;
 
 /**
@@ -11,6 +12,8 @@ import com.penske.apps.smccore.base.domain.enums.UserType;
  */
 public class TestData
 {
+	private static int idCounter = 1;
+	
 	public static final String SSO = "600555555";
 	
 	public final User userPenske = CoreTestUtil.createUser(1234, SSO, "Joe", "Test", "joe.test@penske.com", UserType.PENSKE);
@@ -19,5 +22,11 @@ public class TestData
 	public TestData()
 	{
 		CoreTestUtil.addAssociatedVendors(userVendor, 100, 101);
+	}
+
+	public UserSecurity persist(UserSecurity sec)
+	{
+		CoreTestUtil.set(sec, "userSecurityId", idCounter++);
+		return sec;
 	}
 }
