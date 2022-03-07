@@ -119,13 +119,19 @@
 		ORDER BY LOGIN_TIME DESC
 	</select>
 	
-	<insert id="insertUserSecurity" useGeneratedKeys="true" keyProperty="userSecurityId">
+	<insert id="insertUserSecurity" useGeneratedKeys="true" keyProperty="sec.userSecurityId">
 		INSERT INTO SMC.SMC_USER_SECURITY (
-			USER_ID, ONE_TIME_PW, NEW_USER_EMAIL_DATE
+			USER_ID, ONE_TIME_PW, NEW_USER_EMAIL_DATE, ACCESS_CODE_CREATED_DATE,
+			CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE
 		) VALUES (
 			#{sec.userId},
 			#{sec.oneTimePassword},
-			#{sec.newUserEmailDate}
+			#{sec.newUserEmailDate},
+			#{sec.accessCodeCreatedDate},
+			#{currentUser.sso},
+			CURRENT_TIMESTAMP,
+			#{currentUser.sso},
+			CURRENT_TIMESTAMP
 		)
 	</insert>
 	
@@ -134,7 +140,9 @@
 			ONE_TIME_PW = #{sec.oneTimePassword},
 			NEW_USER_EMAIL_DATE = #{sec.newUserEmailDate},
 			ACCESS_CODE = #{sec.accessCode},
-			ACCESS_CODE_CREATED_DATE = #{sec.accessCodeCreatedDate}
+			ACCESS_CODE_CREATED_DATE = #{sec.accessCodeCreatedDate},
+			MODIFIED_BY = #{currentUser.sso},
+			MODIFIED_DATE = CURRENT_TIMESTAMP
 		WHERE USER_SECURITY_ID = #{sec.userSecurityId}
 	</update>
 

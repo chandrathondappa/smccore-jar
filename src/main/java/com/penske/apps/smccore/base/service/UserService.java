@@ -164,7 +164,7 @@ public class UserService
 		
 		UserSecurity sec = new UserSecurity(createdUser, oneTimePassword);
 		
-		userDAO.insertUserSecurity(sec);
+		userDAO.insertUserSecurity(sec, currentUser);
 		
 		if(sendNewUserEmail)
 			this.sendNewUserEmail(currentUser, createdUser, sec, isNewSsoAccount, lookups, commonStaticUrl);
@@ -211,7 +211,7 @@ public class UserService
 		//Actually do the database writes
 		userDAO.recordUserLogin(loginToUpdate == null ? null : loginToUpdate.getLoginId(), user, serverLocation);
 		if(userSecurity != null)
-			userDAO.updateUserSecurity(userSecurity);
+			userDAO.updateUserSecurity(userSecurity, user);
 		
 		//Return most recent login time before the current one
 		if(previousLogins.isEmpty())
@@ -254,7 +254,7 @@ public class UserService
 		
 		SmcEmail email = new SmcEmail(template.getEmailType(), user.getSso(), user.getEmailAddress(), null, null, body, subject);
 		
-		userDAO.updateUserSecurity(userSecurity);
+		userDAO.updateUserSecurity(userSecurity, user);
 		emailDAO.insertSmcEmail(email);
 	}
 	
@@ -327,7 +327,7 @@ public class UserService
 		
 		SmcEmail email = new SmcEmail(template.getEmailType(), currentUser.getSso(), createdUser.getEmailAddress(), null, null, body, subject);
 		
-		userDAO.updateUserSecurity(createdUserSecurity);
+		userDAO.updateUserSecurity(createdUserSecurity, currentUser);
 		emailDAO.insertSmcEmail(email);
 	}
 	

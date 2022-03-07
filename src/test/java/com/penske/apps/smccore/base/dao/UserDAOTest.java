@@ -110,14 +110,14 @@ public class UserDAOTest extends MyBatisDaoTest
 	@Test
 	public void shouldInsertUserSecurity()
 	{
-		dao.insertUserSecurity(new UserSecurity(data.userVendor, null));
+		dao.insertUserSecurity(new UserSecurity(data.userVendor, null), data.userPenske);
 	}
 	
 	@Test
 	public void shouldUpdateUserSecurity()
 	{
 		UserSecurity sec = data.persist(new UserSecurity(data.userVendor, null));
-		dao.updateUserSecurity(sec);
+		dao.updateUserSecurity(sec, data.userPenske);
 	}
 
 	@Test

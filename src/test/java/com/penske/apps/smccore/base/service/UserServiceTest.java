@@ -10,6 +10,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -93,13 +94,13 @@ public class UserServiceTest
 		
 		service.insertUserSecurity(userPenske, userVendor, "temppw", true, lookups, commonStaticUrl);
 		
-		verify(userDAO).insertUserSecurity(userSecurityCaptor.capture());
+		verify(userDAO).insertUserSecurity(userSecurityCaptor.capture(), eq(userPenske));
 		verify(emailDAO).insertSmcEmail(smcEmailCaptor.capture());
 		
 		UserSecurity sec = userSecurityCaptor.getValue();
 		SmcEmail email = smcEmailCaptor.getValue();
 		
-		verify(userDAO).updateUserSecurity(sec);
+		verify(userDAO).updateUserSecurity(sec, userPenske);
 		
 		assertThat(sec.getOneTimePassword(), is("temppw"));
 		assertThat(sec.getNewUserEmailDate(), is(not(nullValue())));
@@ -112,7 +113,7 @@ public class UserServiceTest
 	{
 		service.insertUserSecurity(userPenske, userVendor, "temppw", false, lookups, commonStaticUrl);
 		
-		verify(userDAO).insertUserSecurity(userSecurityCaptor.capture());
+		verify(userDAO).insertUserSecurity(userSecurityCaptor.capture(), eq(userPenske));
 		verify(emailDAO, times(0)).insertSmcEmail(any());
 		
 		UserSecurity sec = userSecurityCaptor.getValue();
@@ -128,13 +129,13 @@ public class UserServiceTest
 		
 		service.insertUserSecurity(userPenske, userVendor, null, true, lookups, commonStaticUrl);
 		
-		verify(userDAO).insertUserSecurity(userSecurityCaptor.capture());
+		verify(userDAO).insertUserSecurity(userSecurityCaptor.capture(), eq(userPenske));
 		verify(emailDAO).insertSmcEmail(smcEmailCaptor.capture());
 		
 		UserSecurity sec = userSecurityCaptor.getValue();
 		SmcEmail email = smcEmailCaptor.getValue();
 		
-		verify(userDAO).updateUserSecurity(sec);
+		verify(userDAO).updateUserSecurity(sec, userPenske);
 		
 		assertThat(sec.getOneTimePassword(), is(nullValue()));
 		assertThat(sec.getNewUserEmailDate(), is(not(nullValue())));
@@ -147,7 +148,7 @@ public class UserServiceTest
 	{
 		service.insertUserSecurity(userPenske, userVendor, null, false, lookups, commonStaticUrl);
 		
-		verify(userDAO).insertUserSecurity(userSecurityCaptor.capture());
+		verify(userDAO).insertUserSecurity(userSecurityCaptor.capture(), eq(userPenske));
 		verify(emailDAO, times(0)).insertSmcEmail(any());
 		
 		UserSecurity sec = userSecurityCaptor.getValue();
@@ -215,7 +216,7 @@ public class UserServiceTest
 		assertThat(userSecurity.getNewUserEmailDate(), is(nullValue()));
 		
 		verify(userDAO).recordUserLogin(null, userVendor, "someserver");
-		verify(userDAO).updateUserSecurity(userSecurity);
+		verify(userDAO).updateUserSecurity(userSecurity, userVendor);
 	}
 	
 	@Test
@@ -239,7 +240,7 @@ public class UserServiceTest
 		assertThat(userSecurity.getNewUserEmailDate(), is(notNullValue()));
 		
 		verify(userDAO).recordUserLogin(null, userVendor, "someserver");
-		verify(userDAO).updateUserSecurity(userSecurity);
+		verify(userDAO).updateUserSecurity(userSecurity, userVendor);
 	}
 	
 	@Test
@@ -284,7 +285,7 @@ public class UserServiceTest
 		assertThat(accessCode2, is(notNullValue()));
 		assertThat(accessCode1, is(not(accessCode2)));
 		
-		verify(userDAO, times(2)).updateUserSecurity(userSecurity);
+		verify(userDAO, times(2)).updateUserSecurity(userSecurity, userVendor);
 		verify(emailDAO, atLeastOnce()).insertSmcEmail(smcEmailCaptor.capture());
 		
 		List<SmcEmail> emails = smcEmailCaptor.getAllValues();

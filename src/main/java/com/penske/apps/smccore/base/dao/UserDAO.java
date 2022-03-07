@@ -32,10 +32,10 @@ public interface UserDAO
 	public List<UserLogin> getUserLogins(@Param("user") User user);
 	
 	@NonVendorQuery
-	public void insertUserSecurity(@Param("sec") UserSecurity userSecurity);
+	public void insertUserSecurity(@Param("sec") UserSecurity userSecurity, @Param("currentUser") User currentUser);
 	
 	@NonVendorQuery
-	public void updateUserSecurity(@Param("sec") UserSecurity userSecurity);
+	public void updateUserSecurity(@Param("sec") UserSecurity userSecurity, @Param("currentUser") User currentUser);
 	
 	@NonVendorQuery
 	public void recordUserLogin(@Param("loginId") Integer loginId, @Param("user") User user, @Param("serverLocation") String serverLocation);
