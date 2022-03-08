@@ -21,6 +21,7 @@ import com.penske.apps.smccore.MyBatisDaoTest;
 import com.penske.apps.smccore.TestData;
 import com.penske.apps.smccore.base.configuration.CoreConfiguration;
 import com.penske.apps.smccore.base.configuration.ProfileType;
+import com.penske.apps.smccore.base.domain.UserSecurity;
 import com.penske.apps.smccore.base.domain.enums.BuddySelectionType;
 import com.penske.apps.smccore.base.domain.enums.UserDepartment;
 import com.penske.apps.smccore.base.domain.enums.UserType;
@@ -55,10 +56,13 @@ public class UserDAOTest extends MyBatisDaoTest
 	@Test
     public void shouldGetUsers()
 	{
-        dao.getUsers("600127842", null, null, true, false);
-        dao.getUsers("600127842", null, null, true, true);
-        dao.getUsers("600127842", null, null, false, true);
-        dao.getUsers(null, UserType.PENSKE, UserDepartment.SUPPLY_SPECIALIST, false, false);
+        dao.getUsers("600127842", null, null, null, true, false);
+        dao.getUsers("600127842", null, null, null, true, true);
+        dao.getUsers("600127842", null, null, null, false, true);
+        dao.getUsers(null, 1234, null, null, true, false);
+        dao.getUsers(null, 1234, null, null, true, true);
+        dao.getUsers(null, 1234, null, null, false, true);
+        dao.getUsers(null, null, UserType.PENSKE, UserDepartment.SUPPLY_SPECIALIST, false, false);
     }
 	
 	@Test
@@ -89,5 +93,36 @@ public class UserDAOTest extends MyBatisDaoTest
 	public void shouldGetVendorIdsFromVendorFilter()
 	{
 		dao.getVendorIdsFromVendorFilter(data.userPenske);
+	}
+	
+	@Test
+	public void shouldGetUserLogins()
+	{
+		dao.getUserLogins(data.userPenske);
+	}
+	
+	@Test
+	public void shouldGetUserSecurity()
+	{
+		dao.getUserSecurity(data.userVendor);
+	}
+	
+	@Test
+	public void shouldInsertUserSecurity()
+	{
+		dao.insertUserSecurity(new UserSecurity(data.userVendor, null), data.userPenske);
+	}
+	
+	@Test
+	public void shouldUpdateUserSecurity()
+	{
+		UserSecurity sec = data.persist(new UserSecurity(data.userVendor, null));
+		dao.updateUserSecurity(sec, data.userPenske);
+	}
+
+	@Test
+	public void shouldRecordUserLogin()
+	{
+		dao.recordUserLogin(1234, data.userPenske, "localhost");
 	}
 }

@@ -9,6 +9,8 @@ import org.apache.ibatis.annotations.Param;
 
 import com.penske.apps.smccore.base.annotation.NonVendorQuery;
 import com.penske.apps.smccore.base.domain.User;
+import com.penske.apps.smccore.base.domain.UserLogin;
+import com.penske.apps.smccore.base.domain.UserSecurity;
 import com.penske.apps.smccore.base.domain.enums.BuddySelectionType;
 import com.penske.apps.smccore.base.domain.enums.UserDepartment;
 import com.penske.apps.smccore.base.domain.enums.UserType;
@@ -18,10 +20,27 @@ import com.penske.apps.smccore.base.domain.enums.UserType;
  */
 public interface UserDAO
 {
+	//***** Users *****//
 	@NonVendorQuery
-	public List<User> getUsers(@Param("sso") String sso, @Param("userType") UserType userType, @Param("userDepartment") UserDepartment userDepartment,
+	public List<User> getUsers(@Param("sso") String sso, @Param("userId") Integer userId, @Param("userType") UserType userType, @Param("userDepartment") UserDepartment userDepartment,
 		@Param("loadSecurityFunctions") boolean loadSecurityFunctions, @Param("loadVendors") boolean loadVendors);
+
+	@NonVendorQuery
+	public UserSecurity getUserSecurity(@Param("user") User user);
 	
+	@NonVendorQuery
+	public List<UserLogin> getUserLogins(@Param("user") User user);
+	
+	@NonVendorQuery
+	public void insertUserSecurity(@Param("sec") UserSecurity userSecurity, @Param("currentUser") User currentUser);
+	
+	@NonVendorQuery
+	public void updateUserSecurity(@Param("sec") UserSecurity userSecurity, @Param("currentUser") User currentUser);
+	
+	@NonVendorQuery
+	public void recordUserLogin(@Param("loginId") Integer loginId, @Param("user") User user, @Param("serverLocation") String serverLocation);
+	
+	//***** Buddies for Users *****//
 	@NonVendorQuery
 	public List<String> getExistingBuddiesList(@Param("sso") String sso);
 
@@ -31,6 +50,7 @@ public interface UserDAO
 	@NonVendorQuery
     public List<String> getExistingBuddiesListFromUserMaster(@Param("selectionType") BuddySelectionType selectionType, @Param("sso") String sso);
 
+	//***** Vendor IDs for Users *****//
 	public List<Integer> getVendorIdsFromVendorFilter(@Param("user") User user);
 
 	public List<Integer> getVendorIdsFromBuddies(@Param("ssoList") List<String> ssoList);

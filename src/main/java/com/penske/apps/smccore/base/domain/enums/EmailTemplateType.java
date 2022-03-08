@@ -38,6 +38,8 @@ public enum EmailTemplateType implements MappedEnum
 	UNIT_UPDATES_NO_ERR("UNIT_UPDATES_NO_ERR"),
 	/** Unit updates processed with error(s). */
 	UNIT_UPDATES_ERR("UNIT_UPDATES_ERR"),
+	/** Email sent to vendor users for 2-factor authentication on daily sign-in */
+	ACCESS_CODE("ACCESS_CODE"),
 	;
 	
 	private final String code;

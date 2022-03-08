@@ -51,6 +51,9 @@
  		FROM SMC.SMC_USER_MASTER u
  		LEFT JOIN SMC.SMC_ORG_MASTER org ON org.ORG_ID = u.ORG_ID
  		WHERE u.STATUS = 'A'
+ 		<if test="userId != null">
+ 			AND u.USER_ID = #{userId}
+ 		</if>
 		<if test="sso != null">
 	  		AND u.SSO = #{sso}
 		</if>
@@ -92,6 +95,80 @@
 		WHERE orgVendor.ORG_ID = #{orgId}
 		  AND vend.STATUS = 'A'
 	</select>
+	
+	<select id="getUserSecurity" resultType="UserSecurity">
+		SELECT
+			sec.USER_SECURITY_ID,
+			sec.USER_ID,
+			sec.ONE_TIME_PW AS oneTimePassword,
+			sec.NEW_USER_EMAIL_DATE,
+			sec.ACCESS_CODE,
+			sec.ACCESS_CODE_CREATED_DATE
+		FROM SMC.SMC_USER_SECURITY sec
+		WHERE sec.USER_ID = #{user.userId}
+	</select>
+	
+	<select id="getUserLogins" resultType="UserLogin">
+		SELECT
+			ul.LOGIN_ID,
+			ul.SSO,
+			ul.SERVER_LOCATION,
+			ul.LOGIN_TIME
+		FROM SMC.SMC_USER_LOGIN ul
+		WHERE ul.SSO = #{user.sso}
+		ORDER BY LOGIN_TIME DESC
+	</select>
+	
+	<insert id="insertUserSecurity" useGeneratedKeys="true" keyProperty="sec.userSecurityId">
+		INSERT INTO SMC.SMC_USER_SECURITY (
+			USER_ID, ONE_TIME_PW, NEW_USER_EMAIL_DATE, ACCESS_CODE_CREATED_DATE,
+			CREATED_BY, CREATED_DATE, MODIFIED_BY, MODIFIED_DATE
+		) VALUES (
+			#{sec.userId},
+			#{sec.oneTimePassword},
+			#{sec.newUserEmailDate},
+			#{sec.accessCodeCreatedDate},
+			#{currentUser.sso},
+			CURRENT_TIMESTAMP,
+			#{currentUser.sso},
+			CURRENT_TIMESTAMP
+		)
+	</insert>
+	
+	<update id="updateUserSecurity">
+		UPDATE SMC.SMC_USER_SECURITY SET
+			ONE_TIME_PW = #{sec.oneTimePassword},
+			NEW_USER_EMAIL_DATE = #{sec.newUserEmailDate},
+			ACCESS_CODE = #{sec.accessCode},
+			ACCESS_CODE_CREATED_DATE = #{sec.accessCodeCreatedDate},
+			MODIFIED_BY = #{currentUser.sso},
+			MODIFIED_DATE = CURRENT_TIMESTAMP
+		WHERE USER_SECURITY_ID = #{sec.userSecurityId}
+	</update>
+
+	<insert id="recordUserLogin">
+		MERGE INTO SMC.SMC_USER_LOGIN userLogin USING
+		(
+			VALUES (
+				CAST(#{loginId} AS INTEGER),
+				CAST(#{user.sso} AS VARCHAR(100)),
+				CAST(#{serverLocation} AS VARCHAR(30))
+			)
+		) temp (LOGIN_ID, SSO, SERVER_LOCATION)
+			ON temp.LOGIN_ID = userLogin.LOGIN_ID
+		WHEN MATCHED THEN UPDATE SET
+			userLogin.SERVER_LOCATION = temp.SERVER_LOCATION,
+			userLogin.LOGIN_TIME = CURRENT_TIMESTAMP
+		WHEN NOT MATCHED THEN INSERT (
+			SSO,
+			SERVER_LOCATION,
+			LOGIN_TIME
+		) VALUES (
+			temp.SSO,
+			temp.SERVER_LOCATION,
+			CURRENT_TIMESTAMP
+		)
+	</insert>
 	
 	<!-- BUDDIES QUERIES -->
 	<select id="getExistingBuddiesList" resultType="String">
