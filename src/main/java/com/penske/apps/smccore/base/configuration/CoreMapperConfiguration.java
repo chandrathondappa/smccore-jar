@@ -41,6 +41,8 @@ import com.penske.apps.smccore.base.domain.SmcEmail;
 import com.penske.apps.smccore.base.domain.SmcEmailDocument;
 import com.penske.apps.smccore.base.domain.SmcVendorView;
 import com.penske.apps.smccore.base.domain.User;
+import com.penske.apps.smccore.base.domain.UserLogin;
+import com.penske.apps.smccore.base.domain.UserSecurity;
 import com.penske.apps.smccore.base.domain.VehicleIdentifier;
 import com.penske.apps.smccore.base.domain.enums.AlertType;
 import com.penske.apps.smccore.base.domain.enums.BuddySelectionType;
@@ -142,6 +144,8 @@ public class CoreMapperConfiguration
 			SmcEmailDocument.class,
 			SmcVendorView.class,
 			User.class,
+			UserSecurity.class,
+			UserLogin.class,
 			VehicleIdentifier.class,
 			
 			//Component Domain classes
