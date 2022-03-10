@@ -3,16 +3,24 @@
  */
 package com.penske.apps.smccore.base.util;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+
+import com.penske.apps.smccore.base.exception.HumanReadableException;
 
 /**
  * Class containing utility functions useful in all of SMC.
@@ -153,6 +161,125 @@ public final class Util
 		return StringUtils.leftPad(unitNumber, 10);
 	}
 
+	/**
+	 * Accepts a string containing a comma-separated list of unit numbers or unit ranges, and expands that string out into a set of individual unit numbers.
+	 * 	Any spaces in the input string are first stripped out before processing.
+	 * <p>
+	 * 	A unit range is two unit numbers separated by a "-" character.
+	 * 	In order to be a valid range, the start and end unit numbers have to be "comparable", as that term is defined in {@link UnitNumberUtil#enumerateUnitRange(String, String)}.
+	 * 	Unit ranges that are not valid are ignored.
+	 * </p>
+	 * @param unitRangeString The string containing lists of unit ranges, to be broken up into a set of unit numbers.
+	 * @param maxResultSize Optional. If this is not null, and if {@code unitRangeString} expands to more than {@code maxResultSize} unit numbers, then this method will throw an exception.
+	 * 	If this is null, then lists representing arbitrarily large numbers of units are allowed.
+	 * @param padUnitNumbers True if the unit numbers should be left-padded with spaces, as per {@link #getPaddedUnitNumber(String)}, before they are added to the result set.
+	 * 	This may be useful if the result is going to be used in a query matching against a field where unit numbers are represented as left-padded with spaces.
+	 * @return The set of unit numbers represented by the range. NOTE: these unit numbers are not in any particular order.
+	 */
+	public static Set<String> getTokenizedUnitNumbers(String unitRangeString, Integer maxResultSize, boolean padUnitNumbers)
+	{
+		if(unitRangeString == null)
+			unitRangeString = "";
+		
+		Set<String> result = new HashSet<>();
+		
+		//Split into ranges by commas first
+		String[] ranges = StringUtils.split(StringUtils.trim(unitRangeString), ",");
+		for(String range : ranges)
+		{
+			//Then split ranges into start and end unit numbers by hyphens
+			String[] parts = StringUtils.split(StringUtils.trim(range), "-");
+			if(parts == null || parts.length == 0)
+				continue;
+			
+			if(parts.length == 1)
+				result.add(parts[0].trim());
+			else
+			{
+				String start = parts[0].trim();
+				String end = parts[parts.length - 1].trim();
+				List<String> unitNumbers = UnitNumberUtil.enumerateUnitRange(start, end);
+				if(unitNumbers != null)
+					result.addAll(unitNumbers);
+			}
+		}
+		
+		//If this exceeds the max allowable size, then bail out
+		if(maxResultSize != null && result.size() > maxResultSize)
+			throw new HumanReadableException("Unit range resulted in more than " + maxResultSize + " units. Try narrowing your unit range.", false);
+		
+		//Make sure all the unit numbers are appropriately padded
+		if(padUnitNumbers)
+			result = result.stream().map(Util::getPaddedUnitNumber).collect(toSet());
+		
+		return result;
+	}
+
+	/**
+	 * Accepts a string containing a comma-separated list of PO numbers or PO number ranges, and expands that string out into a set of individual PO numbers.
+	 * 	Any spaces in the input string are first stripped out before processing.
+	 * <p>
+	 * 	A PO number range is two PO numbers separated by a "-" character.
+	 * 	PO number ranges where the start PO number is larger than the end PO number will be ignored.
+	 * 	PO number ranges where one of the endpoints is not a non-negative number will be ignored, as will single PO numbers that are not non-negative integers
+	 * </p>
+	 * @param poRangeString The string containing lists of PO number ranges, to be broken up into a set of PO numbers.
+	 * @param maxResultSize Optional. If this is not null, and if {@code poRangeString} expands to more than {@code maxResultSize} PO numbers, then this method will throw an exception.
+	 * 	If this is null, then lists representing arbitrarily large numbers of POs are allowed.
+	 * @return The set of PO numbers represented by the range. NOTE: these PO numbers are not in any particular order.
+	 */
+	public static Set<Integer> getTokenizedPoNumbers(String poRangeString, Integer maxResultSize)
+	{
+		if(poRangeString == null)
+			poRangeString = "";
+		
+		Set<Integer> result = new HashSet<>();
+		
+		//Split into ranges by commas first
+		String[] ranges = StringUtils.split(StringUtils.trim(poRangeString), ",");
+		for(String range : ranges)
+		{
+			//Then split ranges into start and end unit numbers by hyphens
+			String[] parts = StringUtils.split(StringUtils.trim(range), "-");
+			if(parts == null || parts.length == 0)
+				continue;
+			
+			//If any of the parts of the range are outside the size of an integer, then discard the range.
+			// It can't possibly match any PO numbers in our system, since PO numbers are integers
+			if(Stream.of(parts)
+				.map(StringUtils::trim)
+				.anyMatch(p -> p == null || !NumberUtils.isDigits(p) || Long.valueOf(p) > Integer.MAX_VALUE || Long.valueOf(p) < 0))
+			{
+				continue;
+			}
+			
+			if(parts.length == 1)
+				result.add(Integer.valueOf(parts[0].trim()));
+			else
+			{
+				String start = parts[0].trim();
+				String end = parts[parts.length - 1].trim();
+				List<Integer> poNumbers = new ArrayList<>();
+				if((start != null && !start.isEmpty()) && (end != null && !end.isEmpty())) {
+					int startInt = Integer.parseInt(start);
+					int endInt = Integer.parseInt(end);
+					
+					IntStream.rangeClosed(startInt, endInt).forEach(no -> {
+						poNumbers.add(no);
+				    });
+				}
+				if(poNumbers != null && !poNumbers.isEmpty())
+					result.addAll(poNumbers);
+			}
+		}
+		
+		//If this exceeds the max allowable size, then bail out
+		if(maxResultSize != null && result.size() > maxResultSize)
+			throw new HumanReadableException("PO range resulted in more than " + maxResultSize + " POs. Try narrowing your PO range.", false);
+		
+		return result;
+	}
+	
 	/**
 	 * Gets a single element from the given collection. Which specific element is returned is not defined.
 	 * @param elements The collection to pick an element out of
