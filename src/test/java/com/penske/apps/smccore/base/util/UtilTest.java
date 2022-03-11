@@ -135,13 +135,16 @@ public class UtilTest
 		assertThat(Util.getTokenizedUnitNumbers("1-2,5-50", null, false),			containsInAnyOrder("1", "2"));
 		
 		//Empty ranges, and miscellaneous separators
-		assertThat(Util.getTokenizedUnitNumbers(",1-2,,-,8-9,", null, false),			containsInAnyOrder("1", "2", "8", "9"));
+		assertThat(Util.getTokenizedUnitNumbers(",1-2,,-,8-9,", null, false),		containsInAnyOrder("1", "2", "8", "9"));
 		
 		//Spaces at odd places
 		assertThat(Util.getTokenizedUnitNumbers(" 1 -2,5- 6, 7 ,8 ", null, false),	containsInAnyOrder("1", "2", "5", "6", "7", "8"));
 		
 		//Padded unit numbers
 		assertThat(Util.getTokenizedUnitNumbers("1-3,5", null, true),				containsInAnyOrder("         1", "         2", "         3", "         5"));
+		
+		//Handle lower-case letters
+		assertThat(Util.getTokenizedUnitNumbers("1a-2A", null, false),				containsInAnyOrder("1A", "2A"));
 	}
 	
 	@Test

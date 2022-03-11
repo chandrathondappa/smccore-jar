@@ -184,7 +184,7 @@ public final class Util
 		Set<String> result = new HashSet<>();
 		
 		//Split into ranges by commas first
-		String[] ranges = StringUtils.split(StringUtils.trim(unitRangeString), ",");
+		String[] ranges = StringUtils.split(StringUtils.trim(StringUtils.upperCase(unitRangeString)), ",");
 		for(String range : ranges)
 		{
 			//Then split ranges into start and end unit numbers by hyphens
