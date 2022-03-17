@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.apache.ibatis.annotations.Param;
 
+import com.penske.apps.smccore.base.annotation.NonVendorQuery;
 import com.penske.apps.smccore.base.domain.EmailTemplate;
 import com.penske.apps.smccore.base.domain.SmcEmail;
 import com.penske.apps.smccore.base.domain.SmcEmailDocument;
@@ -19,17 +20,20 @@ public interface EmailDAO
 	 * @param emailType The name identifying the email template to look up
 	 * @return The email template with the matching type
 	 */
+	@NonVendorQuery
 	public EmailTemplate getEmailTemplate(@Param("emailType") EmailTemplateType emailType);
 	
 	/**
 	 * Inserts an email message to be sent through the smcnotify batch application.
 	 * @param email The email to be sent
 	 */
+	@NonVendorQuery
 	public void insertSmcEmail(@Param("email") SmcEmail email);
 
 	/**
 	 * Inserts references to documents that should be attached to an email
 	 * @param documents The document references to add
 	 */
+	@NonVendorQuery
 	public void insertEmailDocuments(@Param("list") Collection<SmcEmailDocument> documents, @Param("creatorSso") String creatorSso);
 }
