@@ -221,6 +221,25 @@ public class UserService
 	}
 	
 	/**
+	 * Records the fact that a user successfully provided their daily access code (if applicable)
+	 * @param user The user who logged in
+	 * @param userSecurity The user's security record
+	 */
+	@Transactional
+	public void recordTwoFactorAuthSuccess(User user, UserSecurity userSecurity) {
+		if(user == null)
+			throw new IllegalArgumentException("User is required to record a two factor authentication success for them");
+		if(userSecurity == null)
+			throw new IllegalArgumentException("User security is required since only a vendor should need to record a two factor authentication success");
+		
+		if(user.getUserId() != userSecurity.getUserId())
+			throw new BusinessRuleException("Can not record vendor user two factor authentication success for SSO " + user.getSso() + ". User security info was for a different user.");
+	
+		userSecurity.clearAccessCode();
+		userDAO.updateUserSecurity(userSecurity, user);
+	}
+	
+	/**
 	 * Generates a new access code for the given user and sends them an email with the access code in it.
 	 * @param user The user to generate an access code for
 	 * @param userSecurity The user's security record
@@ -367,4 +386,6 @@ public class UserService
    public List<Integer> getVendorIdsFromBuddies(List<String> existingBuddiesList) {
 	   return userDAO.getVendorIdsFromBuddies(existingBuddiesList);
    }
+
+
 }

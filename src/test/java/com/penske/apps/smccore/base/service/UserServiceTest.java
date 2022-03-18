@@ -384,4 +384,40 @@ public class UserServiceTest
 		thrown.expectMessage("User security record does not match the target user when sending a welcome email");
 		service.sendNewUserEmail(userPenske, userVendor, sec, false, lookups, commonStaticUrl);
 	}
+	
+	@Test
+	public void shouldRecordTwoFactorAuthSuccess()
+	{
+		userSecurity.setNewAccessCode("563876");
+		
+		service.recordTwoFactorAuthSuccess(userVendor, userSecurity);
+		
+		assertThat(userSecurity.isAccessTokenRequired(), is(false));
+		
+		verify(userDAO).updateUserSecurity(userSecurity, userVendor);
+	}
+	
+	@Test
+	public void shouldNotRecordTwoFactorAuthSuccessWithoutUser()
+	{
+		thrown.expectMessage("User is required to record a two factor authentication success for them");
+		service.recordTwoFactorAuthSuccess(null, null);
+	}
+	
+	@Test
+	public void shouldNotRecordTwoFactorAuthSuccessWithoutUserSecurity()
+	{
+		thrown.expectMessage("User security is required since only a vendor should need to record a two factor authentication success");
+		service.recordTwoFactorAuthSuccess(userVendor, null);
+	}
+	
+	@Test
+	public void shouldNotRecordTwoFactorAuthSuccessForVendorMismatchedSecurity()
+	{
+		User vendorUser2 = CoreTestUtil.createUser(98767, "test@testvendor.com", "Test", "Other Vendor", "test@testvendor.com", UserType.VENDOR);
+		UserSecurity sec = new UserSecurity(vendorUser2, null);
+		
+		thrown.expectMessage("User security info was for a different user.");
+		service.recordTwoFactorAuthSuccess(userVendor, sec);
+	}
 }

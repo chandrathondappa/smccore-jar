@@ -92,7 +92,7 @@ public class UserSecurity
 	public boolean isAccessCodeValid(String userAccessCode)
 	{
 		boolean hasAccessCode = StringUtils.isNotBlank(this.accessCode);
-		boolean codeWasGeneratedRecently = this.accessCodeCreatedDate.isAfter(LocalDateTime.now().minusMinutes(ACCESS_CODE_EXPIRATION_MINUTES));
+		boolean codeWasGeneratedRecently = isAccessCodeGeneratedRecently();
 		
 		if(hasAccessCode && codeWasGeneratedRecently)
 		{
@@ -100,6 +100,16 @@ public class UserSecurity
 		}
 		else
 			return false;
+	}
+	
+	/**
+	 * Checks if the access code was generated recently and has not expired
+	 * @param userAccessCode The access code the user typed in
+	 * @return True if the user's access code is not expired. False if it is expired and they will need a new one.
+	 */
+	public boolean isAccessCodeGeneratedRecently()
+	{
+		return this.accessCodeCreatedDate.isAfter(LocalDateTime.now().minusMinutes(ACCESS_CODE_EXPIRATION_MINUTES));
 	}
 	
 	/**
@@ -163,5 +173,9 @@ public class UserSecurity
 	public LocalDateTime getNewUserEmailDate()
 	{
 		return newUserEmailDate;
+	}
+	
+	public LocalDateTime getAccessCodeCreatedDate() {
+		return accessCodeCreatedDate;
 	}
 }	
