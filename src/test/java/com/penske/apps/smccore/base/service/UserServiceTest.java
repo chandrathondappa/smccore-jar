@@ -273,11 +273,11 @@ public class UserServiceTest
 		when(emailDAO.getEmailTemplate(EmailTemplateType.ACCESS_CODE)).thenReturn(CoreTestUtil.createEmailTemplate(EmailTemplateType.ACCESS_CODE, "Access Code", "Your access code is [ACCESS_CODE]"));
 		
 		//Generate one the first time, and then generate it again, and test that the access codes are different
-		service.generateAndSendAccessCode(userVendor, userSecurity);
+		service.generateAndSendAccessCode(userVendor, userSecurity, lookups, commonStaticUrl);
 		
 		String accessCode1 = (String) FieldUtils.readField(FieldUtils.getField(UserSecurity.class, "accessCode", true), userSecurity);
 		
-		service.generateAndSendAccessCode(userVendor, userSecurity);
+		service.generateAndSendAccessCode(userVendor, userSecurity, lookups, commonStaticUrl);
 		
 		String accessCode2 = (String) FieldUtils.readField(FieldUtils.getField(UserSecurity.class, "accessCode", true), userSecurity);
 		
@@ -299,14 +299,14 @@ public class UserServiceTest
 	public void shouldNotSendAccessCodeWithoutUser()
 	{
 		thrown.expectMessage("User is required to send an access code");
-		service.generateAndSendAccessCode(null, userSecurity);
+		service.generateAndSendAccessCode(null, userSecurity, lookups, commonStaticUrl);
 	}
 	
 	@Test
 	public void shouldNotSendAccessCodeWithoutSecurity()
 	{
 		thrown.expectMessage("Security info is required to send an access code for");
-		service.generateAndSendAccessCode(userVendor, null);
+		service.generateAndSendAccessCode(userVendor, null, lookups, commonStaticUrl);
 	}
 	
 	@Test
@@ -316,7 +316,7 @@ public class UserServiceTest
 		UserSecurity sec = new UserSecurity(vendorUser2, null);
 
 		thrown.expectMessage("User and security info must match when sending an access code for");
-		service.generateAndSendAccessCode(userPenske, sec);
+		service.generateAndSendAccessCode(userPenske, sec, lookups, commonStaticUrl);
 	}
 	
 	@Test

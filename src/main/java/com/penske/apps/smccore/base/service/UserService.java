@@ -243,9 +243,10 @@ public class UserService
 	 * Generates a new access code for the given user and sends them an email with the access code in it.
 	 * @param user The user to generate an access code for
 	 * @param userSecurity The user's security record
+	 * @param lookups A lookup container that references SMC_LOOKUP 
 	 */
 	@Transactional
-	public void generateAndSendAccessCode(User user, UserSecurity userSecurity)
+	public void generateAndSendAccessCode(User user, UserSecurity userSecurity, LookupContainer lookups, URL commonStaticUrl)
 	{
 		if(user == null)
 			throw new IllegalArgumentException("User is required to send an access code");
@@ -263,7 +264,9 @@ public class UserService
 		
 		List<Pair<String, String>> replacements = Arrays.asList(
 			Pair.of("[ACCESS_CODE]", accessCode),
-			Pair.of("[VALID_MINUTES]", String.valueOf(UserSecurity.ACCESS_CODE_EXPIRATION_MINUTES))
+			Pair.of("[VALID_MINUTES]", String.valueOf(UserSecurity.ACCESS_CODE_EXPIRATION_MINUTES)),
+			Pair.of("[CUSTOMER_SERVICE_PHONE_NUM]", lookups.getSingleLookupValue(LookupKey.CUSTOMER_SERVICE_PHONE_NUM)),
+			Pair.of("[COMMON_STATIC_URL]", commonStaticUrl.toString())
 		);
 		
 		//create email to send new code to the user
