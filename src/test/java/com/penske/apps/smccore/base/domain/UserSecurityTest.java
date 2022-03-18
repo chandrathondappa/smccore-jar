@@ -63,12 +63,18 @@ public class UserSecurityTest
 	}
 	
 	@Test
-	public void shouldNotMarkNewUserEmailSentTwice()
+	public void shouldMarkNewUserEmailSentTwice() throws InterruptedException
 	{
 		sec.markNewUserEmailSent();
+		LocalDateTime emailSentDate = sec.getNewUserEmailDate();
 		
-		thrown.expectMessage("New user email was already sent for this user");
+		//Have to wait 5 milliseconds so that the dates are different from each other
+		Thread.sleep(5);
+		
 		sec.markNewUserEmailSent();
+		LocalDateTime emailSentDate2 = sec.getNewUserEmailDate();
+		
+		assertThat(emailSentDate, is(not(emailSentDate2)));
 	}
 	
 	@Test

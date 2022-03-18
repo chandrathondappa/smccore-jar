@@ -8,8 +8,6 @@ import java.time.LocalDateTime;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.penske.apps.smccore.base.exception.BusinessRuleException;
-
 /**
  * Security information related to a user (as of 2022-03-03, this is only for vendor users,
  * since Penske users don't currently have one-time passwords or require access codes to login).
@@ -113,13 +111,10 @@ public class UserSecurity
 	}
 	
 	/**
-	 * Registers the fact that a welcome email was sent to this user already
+	 * Registers the fact that a welcome email was sent to this user
 	 */
 	public void markNewUserEmailSent()
 	{
-		if(this.newUserEmailDate != null)
-			throw new BusinessRuleException("New user email was already sent for this user (ID " + userId + ")");
-		
 		this.newUserEmailDate = LocalDateTime.now();
 	}
 	
