@@ -168,4 +168,24 @@ public class UserSecurityTest
 		CoreTestUtil.set(sec, "accessCodeCreatedDate", LocalDateTime.now().minusMinutes(80));
 		assertThat(sec.isAccessCodeValid(accessCode), is(false));
 	}
+	
+	@Test
+	public void shouldCheckIfAccessCodeGeneratedRecently()
+	{
+		//generated < 60 minutes ago
+		sec.setNewAccessCode("555555");
+		assertThat(sec.isAccessCodeGeneratedRecently(), is(true));
+		
+		//generated > 1 day ago
+		CoreTestUtil.set(sec, "accessCodeCreatedDate", LocalDateTime.now().minusDays(1));
+		assertThat(sec.isAccessCodeGeneratedRecently(), is(false));
+		
+		//generated > 60 minutes ago
+		CoreTestUtil.set(sec, "accessCodeCreatedDate", LocalDateTime.now().minusMinutes(61));
+		assertThat(sec.isAccessCodeGeneratedRecently(), is(false));
+		
+		//generated < 60 minutes ago
+		CoreTestUtil.set(sec, "accessCodeCreatedDate", LocalDateTime.now().minusMinutes(49));
+		assertThat(sec.isAccessCodeGeneratedRecently(), is(true));
+	}
 }

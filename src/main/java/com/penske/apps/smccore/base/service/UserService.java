@@ -227,9 +227,14 @@ public class UserService
 	 */
 	@Transactional
 	public void recordTwoFactorAuthSuccess(User user, UserSecurity userSecurity) {
-		if(userSecurity == null && user.isVendorUser())
-			throw new IllegalArgumentException("User security info is required to record a sucessful access code authentication for a vendor user (SSO: " + user.getSso() + ")");
+		if(user == null)
+			throw new IllegalArgumentException("User is required to record a two factor authentication success for them");
+		if(userSecurity == null)
+			throw new IllegalArgumentException("User security is required since only a vendor should need to record a two factor authentication success");
 		
+		if(user.getUserId() != userSecurity.getUserId())
+			throw new BusinessRuleException("Can not record vendor user two factor authentication success for SSO " + user.getSso() + ". User security info was for a different user.");
+	
 		userSecurity.clearAccessCode();
 		userDAO.updateUserSecurity(userSecurity, user);
 	}

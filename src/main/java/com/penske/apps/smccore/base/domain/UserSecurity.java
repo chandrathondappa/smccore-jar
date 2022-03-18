@@ -105,7 +105,7 @@ public class UserSecurity
 	/**
 	 * Checks if the access code was generated recently and has not expired
 	 * @param userAccessCode The access code the user typed in
-	 * @return True if the user's access code matches the one we have, and the access code is not expired
+	 * @return True if the user's access code is not expired. False if it is expired and they will need a new one.
 	 */
 	public boolean isAccessCodeGeneratedRecently()
 	{
