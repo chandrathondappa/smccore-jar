@@ -13,6 +13,14 @@ import java.util.Set;
  */
 public enum LookupKey
 {
+	//***** Feature Flags *****//
+	/** Whether the NONE and OTHER PO Categories should be disabled for loadsheet creation or not. */
+	DISABLE_NONE_OTHER("DISABLE_NONE_OTHER"),
+	/** True to turn off validation that checks that the loadsheet total matches the CATS total before issuing POs or approving cost sheets. */
+	DISABLE_NCT_MATCHING("DISABLE_NCT_MATCHING"),
+	/** True to disable the 2-factor authentication feature, which challenges vendor users once a day with an emailed access code. */
+	DISABLE_2_FACTOR_AUTHENTICATION("DISABLE_2_FACTOR_AUTH"),
+	
 	//***** Emails / Phone Numbers / URLs *****//
 	/** The phone number that internal users should call for assistance with the application. */
 	SUPPORT_PHONE_NUM("SUPPORT_NUM"),
@@ -68,10 +76,6 @@ public enum LookupKey
 	//***** SMCOF - Loadsheet *****//
 	/** The codes that are used to classify the level of luxury of company cars. */
 	SERVICE_VEHICLE_GROUP_CODE("SERVICE_VEHICLE_GROUP_CODE"),
-	/** Whether the NONE and OTHER PO Categories should be disabled for loadsheet creation or not. */
-	DISABLE_NONE_OTHER("DISABLE_NONE_OTHER"),
-	/** True to turn off validation that checks that the loadsheet total matches the CATS total before issuing POs or approving cost sheets. */
-	DISABLE_NCT_MATCHING("DISABLE_NCT_MATCHING"),
 	
 	//***** SMCOP *****//
 	/** The default number of days before today that the "Confirmed Orders" template in Order Confirmation should show orders for */
