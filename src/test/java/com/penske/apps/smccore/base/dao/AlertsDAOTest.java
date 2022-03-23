@@ -71,29 +71,29 @@ public class AlertsDAOTest extends MyBatisDaoTest
 	
 	public void shouldGetConfirmationAlertDataForVendor()
 	{
-		ConfirmationAlertData naTruckData = dao.getConfirmationAlertData(Arrays.asList(1579), null, true);
-		assertThat(naTruckData.getPurchaseOrderCount(), is(28));
+		ConfirmationAlertData naTruckData = dao.getConfirmationAlertData(Arrays.asList(1579), true);
+		assertThat(naTruckData.getPurchaseOrderCount(), is(27));
 		assertThat(naTruckData.getChangeOrderCount(), is(0));
 		assertThat(naTruckData.getCancellationCount(), is(0));
 		
-		ConfirmationAlertData amHaireData = dao.getConfirmationAlertData(Arrays.asList(1520), null, true);
+		ConfirmationAlertData amHaireData = dao.getConfirmationAlertData(Arrays.asList(1520), true);
 		assertThat(amHaireData.getPurchaseOrderCount(), is(0));
-		assertThat(amHaireData.getChangeOrderCount(), is(9));
+		assertThat(amHaireData.getChangeOrderCount(), is(8));
 		assertThat(amHaireData.getCancellationCount(), is(0));
 	}
 	
 	@Test
 	public void shouldGetConfirmationAlertDataForUser()
 	{
-		ConfirmationAlertData allUsersData = dao.getConfirmationAlertData(null, Arrays.asList("600016121","600162037","600136705","600147785","600013219"), false);
-		assertThat(allUsersData.getPurchaseOrderCount(), is(33));
-		assertThat(allUsersData.getChangeOrderCount(), is(14));
-		assertThat(allUsersData.getCancellationCount(), is(0));
+		ConfirmationAlertData naTruckData = dao.getConfirmationAlertData(Arrays.asList(1579), false);
+		assertThat(naTruckData.getPurchaseOrderCount(), is(28));
+		assertThat(naTruckData.getChangeOrderCount(), is(0));
+		assertThat(naTruckData.getCancellationCount(), is(0));
 		
-		ConfirmationAlertData oneUserData = dao.getConfirmationAlertData(null, Arrays.asList("600016121"), false);
-		assertThat(oneUserData.getPurchaseOrderCount(), is(4));
-		assertThat(oneUserData.getChangeOrderCount(), is(9));
-		assertThat(oneUserData.getCancellationCount(), is(0));
+		ConfirmationAlertData amHaireData = dao.getConfirmationAlertData(Arrays.asList(1520), false);
+		assertThat(amHaireData.getPurchaseOrderCount(), is(0));
+		assertThat(amHaireData.getChangeOrderCount(), is(9));
+		assertThat(amHaireData.getCancellationCount(), is(0));
 	}
 	
 	@Test
