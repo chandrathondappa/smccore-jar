@@ -89,15 +89,14 @@ public class AlertsService {
 			if(user.getAssociatedVendorIds().isEmpty())
 				return null;
 			else
-				return alertsDAO.getConfirmationAlertData(user.getAssociatedVendorIds(), null, true);
+				return alertsDAO.getConfirmationAlertData(user.getAssociatedVendorIds(), true);
 		}
 		else {
-			List<String> buddiesList = userService.getExistingBuddiesList(user.getSso());
-			
-			if(buddiesList == null || buddiesList.isEmpty())
+			List<Integer> vendorIdsFromFilter = userService.getVendorIdsFromVendorFilter(user);
+			if(vendorIdsFromFilter == null || vendorIdsFromFilter.isEmpty())
 				return null;
 			else
-				return alertsDAO.getConfirmationAlertData(null, buddiesList, false);
+				return alertsDAO.getConfirmationAlertData(vendorIdsFromFilter, false);
 		}
 	}
 }

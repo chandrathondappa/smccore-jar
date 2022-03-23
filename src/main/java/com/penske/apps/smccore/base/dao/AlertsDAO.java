@@ -29,7 +29,7 @@ public interface AlertsDAO
 	
 	@NonVendorQuery("While this is used by vendors, adding the vendor ID to the query would change the results. So we are resticting vendors by their associated vendor IDs directly in the query")
 	public ConfirmationAlertData getConfirmationAlertData(@Param("associatedVendorIds") Collection<Integer> associatedVendorIds, 
-			@Param("ssoList") Collection<String> ssoList, @Param("vendorUser") boolean vendorUser);
+			@Param("vendorUser") boolean vendorUser);
 
 	@NonVendorQuery
 	public List<Integer> getAllVendorIds();

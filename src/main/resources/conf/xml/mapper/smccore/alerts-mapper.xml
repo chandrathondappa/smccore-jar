@@ -126,20 +126,13 @@
 			SUM(CASE WHEN CNT_OC_PURCHASE_ORDER = 'Y' THEN 1 ELSE 0 END) AS purchaseOrderCount
 		FROM SMC.SMC_ORDER_CONFIRMATION_SUMMARY OCSUM
 		<where>
-			<if test="associatedVendorIds == null and ssoList == null">
+			<if test="associatedVendorIds == null">
 				1 = -1
 			</if>
-			<if test="associatedVendorIds != null and vendorUser">
+			<if test="associatedVendorIds != null">
 				VENDOR_ID IN (
 					<foreach collection="associatedVendorIds" item="associatedVendorId" open="" separator="," close="">
 			 			#{associatedVendorId}
-			 		</foreach>
-				)
-			</if>
-			<if test="ssoList != null and !vendorUser">
-				CREATED_BY IN (
-					<foreach collection="ssoList" item="sso" open="" separator="," close="">
-			 			#{sso}
 			 		</foreach>
 				)
 			</if>
