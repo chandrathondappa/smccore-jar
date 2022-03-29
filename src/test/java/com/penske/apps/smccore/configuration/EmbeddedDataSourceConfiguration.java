@@ -3,15 +3,16 @@
  */
 package com.penske.apps.smccore.configuration;
 
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import com.penske.apps.smccore.base.annotation.qualifier.CoreDataSourceQualifier;
 import com.penske.apps.smccore.base.configuration.ProfileType;
@@ -25,10 +26,16 @@ public class EmbeddedDataSourceConfiguration
 {
     @Bean
     @CoreDataSourceQualifier
-    public DataSource smcDataSource() throws NamingException {
-    	
+    public DataSource smcDataSource()
+    {
         EmbeddedDatabase datasource = new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.HSQL).build();
 
         return datasource;
+    }
+    
+    @Bean
+    public PlatformTransactionManager transactionManager()
+    {
+    	return new DataSourceTransactionManager(smcDataSource());
     }
 }

@@ -38,7 +38,7 @@
 		)
 	</insert>
 	
-	<insert id="insertEmailDocuments" useGeneratedKeys="true" keyProperty="docId">
+	<insert id="insertEmailDocuments" useGeneratedKeys="true" keyProperty="list.docId">
 		INSERT INTO SMC.SMC_EMAIL_DOCS (
 			EMAIL_AUDIT_ID,
 			DOC_NAME,
