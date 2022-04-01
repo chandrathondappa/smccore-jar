@@ -75,14 +75,6 @@
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
 		
-		<!-- Runtime-only JARs -->
-		<dependency>
-			<groupId>cglib</groupId>
-			<artifactId>cglib-nodep</artifactId>
-			<version>3.3.0</version>
-			<scope>runtime</scope>
-		</dependency>
-		
 		<!-- Test-only JARs -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
