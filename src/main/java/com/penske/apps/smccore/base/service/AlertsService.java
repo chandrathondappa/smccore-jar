@@ -94,7 +94,7 @@ public class AlertsService {
 		else {
 			List<Integer> vendorIdsFromFilter = userService.getVendorIdsFromVendorFilter(user);
 			if(vendorIdsFromFilter == null || vendorIdsFromFilter.isEmpty())
-				return null;
+				return alertsDAO.getConfirmationAlertData(user.getAssociatedVendorIds(), false);
 			else
 				return alertsDAO.getConfirmationAlertData(vendorIdsFromFilter, false);
 		}
