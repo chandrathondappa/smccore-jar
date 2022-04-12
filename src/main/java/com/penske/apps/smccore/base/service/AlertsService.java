@@ -11,6 +11,7 @@ import com.penske.apps.smccore.base.dao.AlertsDAO;
 import com.penske.apps.smccore.base.domain.ConfirmationAlertData;
 import com.penske.apps.smccore.base.domain.FulfillmentAlertData;
 import com.penske.apps.smccore.base.domain.ProductionAlertData;
+import com.penske.apps.smccore.base.domain.SearchTemplate;
 import com.penske.apps.smccore.base.domain.SmcAlert;
 import com.penske.apps.smccore.base.domain.User;
 import com.penske.apps.smccore.base.domain.enums.SecurityFunction;
@@ -22,7 +23,8 @@ public class AlertsService {
 	
 	private final AlertsDAO alertsDAO;
 	private final UserService userService;
-	
+
+	//***** Alerts *****//
 	@Autowired
 	public AlertsService(AlertsDAO alertsDAO, UserService userService)
 	{
@@ -98,5 +100,16 @@ public class AlertsService {
 			else
 				return alertsDAO.getConfirmationAlertData(vendorIdsFromFilter, false);
 		}
+	}
+
+	//***** Search Templates *****//
+	public List<SearchTemplate> getSearchTemplatesForUser(SmcTab tab, User user)
+	{
+		return alertsDAO.getSearchTemplates(tab, user.getUserType(), UserType.PENSKE);
+	}
+	
+	public List<SearchTemplate> getAllSearchTemplates()
+	{
+		return alertsDAO.getSearchTemplates(null, null, UserType.PENSKE);
 	}
 }
