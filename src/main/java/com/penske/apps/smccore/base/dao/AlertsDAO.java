@@ -9,6 +9,7 @@ import com.penske.apps.smccore.base.annotation.NonVendorQuery;
 import com.penske.apps.smccore.base.domain.ConfirmationAlertData;
 import com.penske.apps.smccore.base.domain.FulfillmentAlertData;
 import com.penske.apps.smccore.base.domain.ProductionAlertData;
+import com.penske.apps.smccore.base.domain.SearchTemplate;
 import com.penske.apps.smccore.base.domain.SmcAlert;
 import com.penske.apps.smccore.base.domain.enums.SmcTab;
 import com.penske.apps.smccore.base.domain.enums.UserType;
@@ -18,6 +19,7 @@ import com.penske.apps.smccore.base.domain.enums.UserType;
  */
 public interface AlertsDAO
 {
+	//***** Alerts *****//
 	@NonVendorQuery("While this is used by vendors, it is being restricted in the query by user type so no need to filter by vendor ID")
 	public List<SmcAlert> getAlertsForTab(@Param("tab") SmcTab tab, @Param("headerId")int headerId, @Param("userType") UserType userType, @Param("penskeUserType") UserType penskeUserType);
 	
@@ -33,5 +35,8 @@ public interface AlertsDAO
 
 	@NonVendorQuery
 	public List<Integer> getAllVendorIds();
-	
+
+	//***** Search Templates *****//
+	@NonVendorQuery
+	public List<SearchTemplate> getSearchTemplates(@Param("tab") SmcTab tab, @Param("userType") UserType userType, @Param("penskeUserType") UserType penskeUserType);
 }

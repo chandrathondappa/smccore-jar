@@ -71,9 +71,7 @@
  		SELECT
  			secFunction.SEC_FUNC_ID AS securityFunctionId,
  			secFunction.NAME,
- 			secFunction.DESCRIPTION,
- 			tab.TAB_KEY,
- 			tab.TABNAME AS tabName
+ 			secFunction.DESCRIPTION
  		FROM SMC.SMC_ROLE_SEC_FUNCTIONS roleFunction
  		JOIN SMC.SMC_SECURITY_FUNCTION secFunction ON secFunction.SEC_FUNC_ID = roleFunction.SEC_FUNC_ID
  		JOIN SMC.SMC_TAB_MASTER tab ON tab.TAB_ID = secFunction.TAB_ID

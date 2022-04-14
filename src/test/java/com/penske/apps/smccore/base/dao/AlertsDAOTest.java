@@ -209,4 +209,12 @@ public class AlertsDAOTest extends MyBatisDaoTest
 		assertThat(fontaineData.getProdDateOutOfRangeCount(), is(10));
 		assertThat(fontaineData.getProdHoldsCount(), is(15));
 	}
+
+	@Test
+	public void shouldGetSearchTemplates()
+	{
+		dao.getSearchTemplates(null, null, UserType.PENSKE);
+		dao.getSearchTemplates(SmcTab.ORDER_FULFILLMENT, UserType.PENSKE, UserType.PENSKE);
+		dao.getSearchTemplates(SmcTab.ORDER_CONFIRMATION, UserType.VENDOR, UserType.PENSKE);
+	}
 }

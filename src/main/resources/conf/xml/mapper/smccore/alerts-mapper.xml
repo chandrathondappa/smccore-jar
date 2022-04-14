@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.2//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.penske.apps.smccore.base.dao.AlertsDAO">
 
+	<!-- ***** Alerts ***** -->
 	<select id="getAlertsForTab" resultType="com.penske.apps.smccore.base.domain.SmcAlert">
 		SELECT 
 			ALRT.ALERT_ID,
@@ -148,4 +149,29 @@
 		FROM SMC.SMC_VENDOR_MASTER
  	</select>
  	
+ 	<!-- ***** Search Templates ***** -->
+ 	<select id="getSearchTemplates" resultType="SearchTemplate">
+ 		SELECT
+ 			template.TEMPLATE_ID,
+ 			template.TEMPLATE_KEY,
+ 			template.TEMPLATE_NAME,
+ 			template.DISPLAY_SEQUENCE,
+ 			CASE WHEN template.VISIBILITY_PENSKE = 'Y' THEN 1 ELSE 0 END AS visibleToPenske,
+ 			CASE WHEN template.VISIBILITY_VENDOR = 'Y' THEN 1 ELSE 0 END AS visibleToVendor,
+ 			tab.TAB_KEY
+ 		FROM SMC.SMC_SEARCH_TEMPLATES template
+ 		JOIN SMC.SMC_TAB_TEMPLATE_MAP tabMap ON tabMap.TEMPLATE_ID = template.TEMPLATE_ID
+ 		JOIN SMC.SMC_TAB_MASTER tab ON tab.TAB_ID = tabMap.TAB_ID
+ 		WHERE tab.STATUS = 'A'
+ 		  AND template.STATUS = 'A'
+ 		  <if test="tab != null">
+ 		  	AND tab.TAB_KEY = #{tab}
+ 		  </if>
+ 		  <if test="userType != null and userType == penskeUserType">
+ 			AND template.VISIBILITY_PENSKE = 'Y'
+ 		  </if>
+ 		  <if test="userType != null and userType != penskeUserType">
+ 		  	AND template.VISIBILITY_VENDOR = 'Y'
+ 		  </if>
+ 	</select>
 </mapper>

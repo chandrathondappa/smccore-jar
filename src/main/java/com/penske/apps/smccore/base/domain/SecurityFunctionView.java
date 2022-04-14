@@ -16,10 +16,6 @@ public class SecurityFunctionView
 	private String name;
 	/** Human-readable description of the security function */
 	private String description;
-	/** The name used to refer in code to the tab the security function is assigned to */
-	private String tabKey;
-	/** A human-readable description of the tab the security function is assigned to */
-	private String tabName;
 	
 	/** Null constructor - MyBatis only */
 	protected SecurityFunctionView() {}
@@ -28,7 +24,7 @@ public class SecurityFunctionView
 	@Override
 	public String toString()
 	{
-		return "{SecurityFunction - " + name + " (Tab: " + tabName + ")}";
+		return "{SecurityFunction - " + name + "}";
 	}
 	
 	//***** MODIFIED ACCESSORS *****//
@@ -55,15 +51,5 @@ public class SecurityFunctionView
 	public String getDescription()
 	{
 		return description;
-	}
-
-	public String getTabKey()
-	{
-		return tabKey;
-	}
-
-	public String getTabName()
-	{
-		return tabName;
 	}
 }
