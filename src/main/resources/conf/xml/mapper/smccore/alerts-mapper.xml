@@ -150,14 +150,14 @@
  	</select>
  	
  	<!-- ***** Search Templates ***** -->
- 	<select id="getSearchTemplates">
+ 	<select id="getSearchTemplates" resultType="SearchTemplate">
  		SELECT
  			template.TEMPLATE_ID,
  			template.TEMPLATE_KEY,
  			template.TEMPLATE_NAME,
  			template.DISPLAY_SEQUENCE,
  			CASE WHEN template.VISIBILITY_PENSKE = 'Y' THEN 1 ELSE 0 END AS visibleToPenske,
- 			CASE WHEN template.VISIBILITY_VENDOR = 'Y' THEN 1 ELSE 0 END AS visibleToVendor
+ 			CASE WHEN template.VISIBILITY_VENDOR = 'Y' THEN 1 ELSE 0 END AS visibleToVendor,
  			tab.TAB_KEY
  		FROM SMC.SMC_SEARCH_TEMPLATES template
  		JOIN SMC.SMC_TAB_TEMPLATE_MAP tabMap ON tabMap.TEMPLATE_ID = template.TEMPLATE_ID

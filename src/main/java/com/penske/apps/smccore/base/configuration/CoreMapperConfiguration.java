@@ -35,6 +35,7 @@ import com.penske.apps.smccore.base.domain.LookupCacheInfo;
 import com.penske.apps.smccore.base.domain.LookupContainer;
 import com.penske.apps.smccore.base.domain.LookupItem;
 import com.penske.apps.smccore.base.domain.ProductionAlertData;
+import com.penske.apps.smccore.base.domain.SearchTemplate;
 import com.penske.apps.smccore.base.domain.SecurityFunctionView;
 import com.penske.apps.smccore.base.domain.SmcAlert;
 import com.penske.apps.smccore.base.domain.SmcEmail;
@@ -138,6 +139,7 @@ public class CoreMapperConfiguration
 			LookupContainer.class,
 			LookupItem.class,
 			ProductionAlertData.class,
+			SearchTemplate.class,
 			SecurityFunctionView.class,
 			SmcAlert.class,
 			SmcEmail.class,

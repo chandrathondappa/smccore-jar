@@ -37,5 +37,6 @@ public interface AlertsDAO
 	public List<Integer> getAllVendorIds();
 
 	//***** Search Templates *****//
+	@NonVendorQuery
 	public List<SearchTemplate> getSearchTemplates(@Param("tab") SmcTab tab, @Param("userType") UserType userType, @Param("penskeUserType") UserType penskeUserType);
 }
