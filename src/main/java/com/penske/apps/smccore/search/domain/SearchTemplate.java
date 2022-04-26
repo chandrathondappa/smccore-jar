@@ -1,7 +1,7 @@
 /**
  * @author john.shiffler (600139252)
  */
-package com.penske.apps.smccore.base.domain;
+package com.penske.apps.smccore.search.domain;
 
 import com.penske.apps.smccore.base.domain.enums.SmcTab;
 

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="core-sql-fragments">
+	<!-- ***** SQL Fragments - used in search templates / alerts ***** -->
+	<sql id="confirmationSearchFragment">
+		1 = 1
+		<if test="search.statuses != null and !search.statuses.isEmpty()">
+			AND purchDetails.STATUS IN (
+				<foreach collection="search.statuses" item="status" separator=",">#{status}</foreach>
+			)
+		</if>
+		<if test="search.sentViaEdi != null">
+			AND purchDetails.EDI_FLAG = <choose><when test="search.sentViaEdi">'Y'</when><otherwise>'N'</otherwise></choose>
+		</if>
+		<if test="!search.poNumbers.isEmpty()">
+			AND purchDetails.PO_NUMBER IN (
+				<foreach collection="search.poNumbers" item="poNumber" separator=",">#{poNumber}</foreach>
+			)
+		</if>
+		<if test="search.coNumber != null and search.coOperator != null">
+			AND purchDetails.CO_NUMBER ${search.coOperator} #{${search}.coNumber}
+		</if>
+		<if test="search.cancelSequence != null and search.cancelSequenceOperator != null">
+			AND purchDetails.CANCEL_SEQ ${search.cancelSequenceOperator} #{${search}.cancelSequence}
+		</if>
+		<if test="search.daysUnconfirmed != null and search.daysUnconfirmedOperator != null">
+			AND (CASE WHEN purchDetails.CONFIRMED_DATE IS NULL OR purchDetails.CONFIRMED_DATE = '0001-01-01'
+					THEN SMC_CALC_WORKING_DAYS(CURRENT_DATE, purchDetails.ISSUE_DATE)
+					ELSE SMC_CALC_WORKING_DAYS(purchDetails.CONFIRMED_DATE, purchDetails.ISSUE_DATE)
+				END) ${search.daysUnconfirmedOperator} #{${search}.daysUnconfirmed}
+		</if>
+		<if test="!search.unitNumbers.isEmpty()">
+			AND purchDetails.PO_NUMBER IN (
+				SELECT map.PO_NUMBER
+				FROM SMC.SMC_PO_UNIT_MAP map
+				JOIN SMC.SMC_UNIT_MASTER mast ON mast.MASTER_ID = map.MASTER_ID
+				WHERE map.UNIT_NUMBER IN (
+					<foreach collection="search.unitNumbers" item="unitNumber" separator=",">#{unitNumber}</foreach>
+				)
+			)
+		</if>
+		<if test="search.vendorOrderNumber != null and !search.vendorOrderNumber.isEmpty()">
+			AND purchDetails.PO_NUMBER IN (
+				SELECT mast.PO_NUMBER
+				FROM SMC.SMC_UNIT_MASTER mast
+				WHERE UPPER(mast.VENDOR_ORDER_NUMBER) LIKE #{${search}.vendorOrderNumberForQuery}
+			)
+		</if>
+		<if test="search.issueDateFrom != null and search.issueDateTo != null">
+			AND purchDetails.ISSUE_DATE BETWEEN #{${search}.issueDateFrom} AND #{${search}.issueDateTo}
+		</if>
+		<if test="search.confirmedDateFrom != null and search.confirmedDateTo != null">
+			AND purchDetails.CONFIRMED_DATE BETWEEN #{${search}.confirmedDateFrom} AND #{${search}.confirmedDateTo}
+		</if>
+		<if test="search.sentViaEdi != null">
+			AND purchDetails.EDI_FLAG = <choose><when test="search.sentViaEdi">'Y'</when><otherwise>'N'</otherwise></choose>
+		</if>
+		<if test="!search.penskeUser">
+			AND purchDetails.VENDOR_VISIBILITY = 'Y'
+			AND purchDetails.IS_VISIBLE_TO_VENDOR = 'Y'
+		</if>
+	</sql>
+</mapper>

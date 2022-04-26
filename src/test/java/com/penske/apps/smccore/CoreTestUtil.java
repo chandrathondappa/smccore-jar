@@ -31,17 +31,13 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.penske.apps.smccore.base.beans.LookupManager;
-import com.penske.apps.smccore.base.domain.ConfirmationAlertData;
 import com.penske.apps.smccore.base.domain.DocTypeMaster;
 import com.penske.apps.smccore.base.domain.EmailTemplate;
-import com.penske.apps.smccore.base.domain.FulfillmentAlertData;
 import com.penske.apps.smccore.base.domain.LookupCacheInfo;
 import com.penske.apps.smccore.base.domain.LookupContainer;
 import com.penske.apps.smccore.base.domain.LookupItem;
-import com.penske.apps.smccore.base.domain.ProductionAlertData;
 import com.penske.apps.smccore.base.domain.User;
 import com.penske.apps.smccore.base.domain.UserLogin;
-import com.penske.apps.smccore.base.domain.enums.AlertType;
 import com.penske.apps.smccore.base.domain.enums.EmailTemplateType;
 import com.penske.apps.smccore.base.domain.enums.LookupKey;
 import com.penske.apps.smccore.base.domain.enums.PayableStatus;
@@ -53,6 +49,10 @@ import com.penske.apps.smccore.component.domain.enums.ConflictStatus;
 import com.penske.apps.smccore.component.domain.enums.Visibility;
 import com.penske.apps.smccore.component.domain.unittemplate.UnitComponent;
 import com.penske.apps.smccore.component.domain.unittemplate.UnitMasterInfo;
+import com.penske.apps.smccore.search.domain.ConfirmationAlertData;
+import com.penske.apps.smccore.search.domain.FulfillmentAlertData;
+import com.penske.apps.smccore.search.domain.ProductionAlertData;
+import com.penske.apps.smccore.search.domain.enums.AlertType;
 
 /**
  * A class containing utility methods for testing, including methods for creating basic
@@ -177,9 +177,9 @@ public final class CoreTestUtil
 			String fieldName;
 			switch(alert.getKey())
 			{
-			case OC_PURCHASE_ORDER: 		fieldName = "purchaseOrderCount"; break;
-			case OC_CHANGE_ORDER:			fieldName = "changeOrderCount"; break;
-			case OC_CANC_ORDER:				fieldName = "cancellationCount"; break;
+			case OC_UNCONFIRMED_PO: 		fieldName = "purchaseOrderCount"; break;
+			case OC_UNCONFIRMED_CO:			fieldName = "changeOrderCount"; break;
+			case OC_UNCONFIRMED_CANCELLATION:				fieldName = "cancellationCount"; break;
 			default: fieldName = null;
 			}
 			
@@ -202,15 +202,15 @@ public final class CoreTestUtil
 			switch(alert.getKey())
 			{
 			case PROD_EST_PROD_PAST_DUE:	fieldName = "estProductionDatePastDueCount"; break;
-			case PROD_EST_DELV_PAST_DUE:	fieldName = "estDeliveryDatePastDueCount"; break;
-			case PROD_PROD_HOLDS:			fieldName = "prodHoldsCount"; break;
-			case ALL_MISSING_INFO:			fieldName = "missingInfoCount"; break;
+			case PROD_EST_DELIVERY_PAST_DUE:	fieldName = "estDeliveryDatePastDueCount"; break;
+			case PROD_HOLDS:			fieldName = "prodHoldsCount"; break;
+			case PROD_ALL_MISSING_INFO:			fieldName = "missingInfoCount"; break;
 			case PROD_DATA_CONFLICT:		fieldName = "dataConflictCount"; break;
-			case PROD_DELAY_COMM_REQ:		fieldName = "delayCommReqCount"; break;
-			case PROD_PROD_DT_EARLY:		fieldName = "prodDateEarlyCount"; break;
-			case PROD_PROD_DT_LATE:			fieldName = "prodDateLateCount"; break;
-			case PROD_DELV_DT_EARLY:		fieldName = "deliveryDateEarlyCount"; break;
-			case PROD_DELV_DT_LATE:			fieldName = "deliveryDateLateCount"; break;
+			case PROD_DELAY_COMMENT_REQUIRED:		fieldName = "delayCommReqCount"; break;
+			case PROD_PRODUCTION_DATE_EARLY:		fieldName = "prodDateEarlyCount"; break;
+			case PROD_PRODUCTION_DATE_LATE:			fieldName = "prodDateLateCount"; break;
+			case PROD_DELIVERY_DATE_EARLY:		fieldName = "deliveryDateEarlyCount"; break;
+			case PROD_DELIVERY_DATE_LATE:			fieldName = "deliveryDateLateCount"; break;
 			default: fieldName = null;
 			}
 			

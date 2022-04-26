@@ -26,18 +26,13 @@ import com.penske.apps.smccore.base.annotation.MappedEnumTypes;
 import com.penske.apps.smccore.base.annotation.qualifier.CoreDataSourceQualifier;
 import com.penske.apps.smccore.base.annotation.qualifier.VendorQueryWrappingPluginQualifier;
 import com.penske.apps.smccore.base.dao.CoreMapperMarker;
-import com.penske.apps.smccore.base.domain.ConfirmationAlertData;
 import com.penske.apps.smccore.base.domain.CoreTypeAliasMarker;
 import com.penske.apps.smccore.base.domain.DocTypeMaster;
 import com.penske.apps.smccore.base.domain.EmailTemplate;
-import com.penske.apps.smccore.base.domain.FulfillmentAlertData;
 import com.penske.apps.smccore.base.domain.LookupCacheInfo;
 import com.penske.apps.smccore.base.domain.LookupContainer;
 import com.penske.apps.smccore.base.domain.LookupItem;
-import com.penske.apps.smccore.base.domain.ProductionAlertData;
-import com.penske.apps.smccore.base.domain.SearchTemplate;
 import com.penske.apps.smccore.base.domain.SecurityFunctionView;
-import com.penske.apps.smccore.base.domain.SmcAlert;
 import com.penske.apps.smccore.base.domain.SmcEmail;
 import com.penske.apps.smccore.base.domain.SmcEmailDocument;
 import com.penske.apps.smccore.base.domain.SmcVendorView;
@@ -45,7 +40,6 @@ import com.penske.apps.smccore.base.domain.User;
 import com.penske.apps.smccore.base.domain.UserLogin;
 import com.penske.apps.smccore.base.domain.UserSecurity;
 import com.penske.apps.smccore.base.domain.VehicleIdentifier;
-import com.penske.apps.smccore.base.domain.enums.AlertType;
 import com.penske.apps.smccore.base.domain.enums.BuddySelectionType;
 import com.penske.apps.smccore.base.domain.enums.CorpCode;
 import com.penske.apps.smccore.base.domain.enums.CurrencyCode;
@@ -91,13 +85,21 @@ import com.penske.apps.smccore.component.domain.unittemplate.UnitComponent;
 import com.penske.apps.smccore.component.domain.unittemplate.UnitComponentMaster;
 import com.penske.apps.smccore.component.domain.unittemplate.UnitConflictResolver;
 import com.penske.apps.smccore.component.domain.unittemplate.UnitMasterInfo;
+import com.penske.apps.smccore.search.dao.CoreSearchMapperMarker;
+import com.penske.apps.smccore.search.domain.ConfirmationAlertData;
+import com.penske.apps.smccore.search.domain.FulfillmentAlertData;
+import com.penske.apps.smccore.search.domain.ProductionAlertData;
+import com.penske.apps.smccore.search.domain.SearchTemplate;
+import com.penske.apps.smccore.search.domain.SmcAlert;
+import com.penske.apps.smccore.search.domain.enums.AlertType;
+import com.penske.apps.smccore.search.domain.enums.ConfirmationSearchTemplateType;
 
 /**
  * Sets up MyBatis configuration for the SMC core JAR. Expects that there will be a DataSource bean available for autowiring.
  * Also, leaves the decision as to whether to enable transaction management up to the parent applications's configuration.
  */
 @Configuration
-@MapperScan(basePackageClasses={UnitComponentMapperMarker.class, CoreMapperMarker.class}, sqlSessionFactoryRef="coreSessionFactory")
+@MapperScan(basePackageClasses={UnitComponentMapperMarker.class, CoreMapperMarker.class, CoreSearchMapperMarker.class}, sqlSessionFactoryRef="coreSessionFactory")
 @MappedEnumTypes({
 	//Common enums for all of SMC
 	CorpCode.class, CurrencyCode.class, EmailTemplateType.class, PayableStatus.class, PoStatus.class, TransportationTypeEnum.class, UserDepartment.class, UserType.class, BuddySelectionType.class,
@@ -106,6 +108,8 @@ import com.penske.apps.smccore.component.domain.unittemplate.UnitMasterInfo;
 	ComponentType.class, Visibility.class, ComponentRuleOperator.class, RuleType.class, ConflictStatus.class,
 	//Calculated values for unit masters
 	CommentRequiredComplianceType.class,
+	//Enums to support search queries
+	ConfirmationSearchTemplateType.class,
 })
 public class CoreMapperConfiguration
 {
@@ -199,6 +203,9 @@ public class CoreMapperConfiguration
 			RuleType.class,
 			Visibility.class,
 			
+			//Search Enums
+			ConfirmationSearchTemplateType.class,
+			
 		};
 		ALIAS_CLASSES = Arrays.asList(classes);
 	}
@@ -236,7 +243,8 @@ public class CoreMapperConfiguration
 			"lookup-mapper.xml",
 			"email-mapper.xml",
 			"user-mapper.xml",
-			"alerts-mapper.xml"
+			"alerts-mapper.xml",
+			"core-sql-fragments.xml"
 		);
 		
 		List<Resource> mapperLocations = SpringConfigUtil.getMapperFileResources(patternResolver, basePath, mapperFileNames);
