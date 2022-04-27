@@ -167,7 +167,7 @@ public class ConfirmationSearch
 	
 	public String getVendorOrderNumberForQuery()
 	{
-		return "%" + this.vendorOrderNumber + "%";
+		return StringUtils.isBlank(this.vendorOrderNumber) ? null : "%" + this.vendorOrderNumber + "%";
 	}
 
 	public Boolean getPenskeUser()

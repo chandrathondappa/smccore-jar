@@ -1,6 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="core-sql-fragments">
+	<!-- IMPORTANT NOTE ON BINDINGS IN FRAGMENTS -->
+	<!--
+		This file provides SQL fragments that are able to be used multiple times within the same query.
+		In order to do this, we need to use a parameter binding that's somewhat strange-looking, although it does work according to the way MyBatis is documented.
+			(That is, we're not taking advantage of a glitch or undocumented feature in MyBatis, but rather pushing MyBatis features to their limit.)
+		 
+		 *** Short Answer ***
+		 To successfully use these fragments multiple times in the same query, you need to do a few things:
+		 	1) Within the fragment itself, if you want to refer to a parameter object:
+		 		a) As a ${} expression anywhere in the fragment, just refer to it by name (ex: ${search.coOperator})
+		 		b) In a quoted expression in a tag, then you can just refer to it by name. (ex: <if test="search.status != null"> or <foreach collection="search.poNumbers" item="poNumber">)
+		 		c) As a #{} expression inside a <foreach> loop, just refer to it by name. (ex: <foreach collection="search.poNumbers item="poNumber">#{poNumber}</foreach>)
+		 		d) As a #{} expression that is NOT inside a <foreach> loop, THEN you have to use both ${} and #{} binding (ex: #{${search}.coNumber}).
+		 	2) To include the fragment in a query that uses it, you need to bind the parameter objects to it in two different ways (with both <bind> and <property>).
+		 		Example: if your fragment uses a parameter called "search", and you want to bind a parameter named "selectSearch" to it in this way from your query, you could put the following in your query:
+		 		
+		 		<bind name="search" value="whereSearch" />
+				<include refid="core-sql-fragments.confirmationSearchFragment">
+					<property name="search" value="whereSearch" />
+				</include>
+		
+		*** Long Answer ****
+		MyBatis has two different ways of using parameters - at load time (i.e. ${}) and at run time (i.e. #{}).
+		Load time binding is run when the SQL is being built, and is generally not recommended where you have input from the user,
+			since it does direct string substitution into the SQL, which leaves you susceptible to SQL injection attacks.
+		Run time binding is performed right before the SQL is run, after the SQL has already been built and prepared by the database driver, and it properly escapes parameters so SQL injection will not work
+		
+		If you have a normal <sql> fragment and you try to use it more than once in a single query (ex: once in the SELECT clause and again in the WHERE clause), then the problem you run into
+			is that the fragment expects a single parameter name (ex: "search"), but the query presumably has multiple different parameters
+			(ex: "selectSearch" for the SELECT clause and "whereSearch" for the WHERE clause).
+		So, the query using the fragment needs to tell that fragment which parameter to look at for each invocation of the fragment (i.e. use "selectSearch" the first time and "whereSearch" the next time).
+		
+		MyBatis provides several options for binding a parameter to a particular name, but they all come with limitations.
+			* When using a fragment, you can provide a parameter name with the <property> element (ex: <include refid="some-fragment"><property name="search" value="selectSearch" /></include>)
+				However, this is only in scope at query load time, so the only way to refer to the "search" parameter in your fragment using this is with ${}, which is not optimal because of SQL injection
+			* You can also use the <bind> element to make a parameter available under a specific name (ex: <bind name="search" value="selectSearch" />
+				However, this doesn't quite work by itself either, because while <bind> does make the parameter available for use AT RUN TIME, it performs the binding AT LOAD TIME.
+				So, if you use <bind> in a <foreach> loop, you wind up with all the instances of the "search" parameter pointing to the last element in the collection you're looping over.
+				For instance, if "myList" is a list containing the numbers 1, 2, and 3, then putting the following in your query:
+					WHERE foo IN (
+					<foreach collection="myList" item="myItem" separator=",">
+						<bind name="myItemTimesTwo" value="myItem * 2" />
+						#{myItemTimesTwo}
+					</foreach>
+					)
+				will result in the following SQL:
+					WHERE foo IN (6, 6, 6)
+				This happens because the <bind> element runs at load time, so at load time, myItemTimesTwo is set first to 2, then to 4, then to 6, but the value of myItemTimesTwo isn't USED until run tim.
+				So, by the time MyBatis gets to doing run-time binding, it can only see the value of 6 in myItemTimesTwo, and it binds that value to each of the three parameter placeholders it created a load time.
+		
+		The solution to this is to use a combination of both <bind> and <property> in the calling query, and to use a combination of ${} and #{} binding in the fragment.
+		So, in the calling query, you can invoke the fragment using:
+			<bind name="search" value="selectSearch" />
+			<include refid="core-sql-fragments.confirmationSearchFragment">
+				<property name="search" value="selectSearch" />
+			</include>
+		And in the fragment, to access the "coNumber" property of the "search" parameter, you write:
+			#{${search}.coNumber}
+		The <property> element tells the fragment that the ${search} expression translates to the value "selectSearch" at load time, and the <bind> element provides the actual "selectSearch" object at load time. 
+		Then, at run time, since the ${search} expression bound the object provided by <bind> at load time to that specific part of the SQL, the expression #{${search}.coNumber} reduces down to:
+			#{selectSearch.coNumber}, which is then properly read from the "selectSearch" query parameter.
+		Without the <bind> element, the expression ${search} would try to call the "selectSearch" object's toString method at load time
+			and would result in MyBatis trying to evaluate something like "#{com.penske.apps.smccore.search.domain.ConfirmationSearch@j1k38.coNumber}", so you would get an error saying the parameter "com" was not found.
+		Without the <property> element, MyBatis would not know to map the expression ${search} to the "selectSearch" parameter name, and you would get an error saying the parameter "search" was not found. 
+	 -->
+
 	<!-- ***** SQL Fragments - used in search templates / alerts ***** -->
 	<sql id="confirmationSearchFragment">
 		1 = 1
@@ -25,8 +91,8 @@
 		</if>
 		<if test="search.daysUnconfirmed != null and search.daysUnconfirmedOperator != null">
 			AND (CASE WHEN purchDetails.CONFIRMED_DATE IS NULL OR purchDetails.CONFIRMED_DATE = '0001-01-01'
-					THEN SMC_CALC_WORKING_DAYS(CURRENT_DATE, purchDetails.ISSUE_DATE)
-					ELSE SMC_CALC_WORKING_DAYS(purchDetails.CONFIRMED_DATE, purchDetails.ISSUE_DATE)
+					THEN SMC.SMC_CALC_WORKING_DAYS(CURRENT_DATE, CAST(purchDetails.ISSUE_DATE AS DATE))
+					ELSE SMC.SMC_CALC_WORKING_DAYS(CAST(purchDetails.CONFIRMED_DATE AS DATE), CAST(purchDetails.ISSUE_DATE AS DATE))
 				END) ${search.daysUnconfirmedOperator} #{${search}.daysUnconfirmed}
 		</if>
 		<if test="!search.unitNumbers.isEmpty()">
