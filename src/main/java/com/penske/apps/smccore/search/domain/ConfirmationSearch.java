@@ -16,9 +16,6 @@ import com.penske.apps.smccore.base.util.Util;
 /**
  * Represents all the search parameters that can be used to filter a search on the Order Confirmation screen.
  */
-/**
- * 
- */
 public class ConfirmationSearch
 {
 	/** Comma-separated string of PO numbers. Used to store the PO numbers the user wanted to search. */
@@ -41,9 +38,13 @@ public class ConfirmationSearch
 	/** The number of business days (excluding weekends) that the order existed before it was confirmed. */
 	private Integer daysUnconfirmed;
 	
+	/** The start date for searches on the issue date */
 	private LocalDate issueDateFrom;
+	/** The end date for searches on the issue date */
 	private LocalDate issueDateTo;
+	/** The start date for searches on the confirmed date */
 	private LocalDate confirmedDateFrom;
+	/** The end date for searches on the confirmed date */
 	private LocalDate confirmedDateTo;
 	
 	/**
