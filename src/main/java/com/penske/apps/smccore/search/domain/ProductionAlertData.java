@@ -1,4 +1,4 @@
-package com.penske.apps.smccore.base.domain;
+package com.penske.apps.smccore.search.domain;
 
 /**
  * Information about how many vehicles have certain conditions that are highlighted in the Production module.

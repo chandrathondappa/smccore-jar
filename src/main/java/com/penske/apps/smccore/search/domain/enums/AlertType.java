@@ -1,8 +1,10 @@
-package com.penske.apps.smccore.base.domain.enums;
+package com.penske.apps.smccore.search.domain.enums;
 
-import com.penske.apps.smccore.base.domain.ConfirmationAlertData;
-import com.penske.apps.smccore.base.domain.FulfillmentAlertData;
-import com.penske.apps.smccore.base.domain.ProductionAlertData;
+import com.penske.apps.smccore.base.domain.enums.MappedEnum;
+import com.penske.apps.smccore.search.domain.ConfirmationAlertData;
+import com.penske.apps.smccore.search.domain.ConfirmationSearch;
+import com.penske.apps.smccore.search.domain.FulfillmentAlertData;
+import com.penske.apps.smccore.search.domain.ProductionAlertData;
 
 public enum AlertType implements MappedEnum {
 	
@@ -25,7 +27,7 @@ public enum AlertType implements MappedEnum {
 			return fulfillmentAlertData == null ? 0 : fulfillmentAlertData.getReadyToOrderCount();
 		}
 	},
-	OF_CONTRACT_RVW("ALRT_OF_CONTRACT_RVW"){
+	OF_CONTRACT_REVIEW("ALRT_OF_CONTRACT_RVW"){
 		@Override
 		public int extractCount(FulfillmentAlertData fulfillmentAlertData, ConfirmationAlertData confirmationAlertData, ProductionAlertData productionAlertData) {
 			return fulfillmentAlertData == null ? 0 : fulfillmentAlertData.getContractReviewCount();
@@ -38,14 +40,14 @@ public enum AlertType implements MappedEnum {
 			return fulfillmentAlertData == null ? 0 : fulfillmentAlertData.getVendorAnalystAssignmentRequiredCount();
 		}
 	},
-	OF_NEW_VEND_SETUP_REQ("ALRT_OF_NEW_VEND_SETUP_REQ"){
+	OF_NEW_VENDOR_SETUP_REQUIRED("ALRT_OF_NEW_VEND_SETUP_REQ"){
 		@Override
 		public int extractCount(FulfillmentAlertData fulfillmentAlertData, ConfirmationAlertData confirmationAlertData,
 				ProductionAlertData productionAlertData) {
 			return fulfillmentAlertData == null ? 0 : fulfillmentAlertData.getNewVendorSetupRequiredCount();
 		}
 	},
-	OF_VEND_USER_SETUP_REQ("ALRT_OF_VEND_USER_SETUP_REQ"){
+	OF_VENDOR_USER_SETUP_REQUIRED("ALRT_OF_VEND_USER_SETUP_REQ"){
 		@Override
 		public int extractCount(FulfillmentAlertData fulfillmentAlertData, ConfirmationAlertData confirmationAlertData,
 				ProductionAlertData productionAlertData) {
@@ -54,22 +56,43 @@ public enum AlertType implements MappedEnum {
 	},
 	
 	//CONFIRMATION
-	OC_PURCHASE_ORDER("ALRT_OC_PURCHASE_ORDER"){
+	OC_UNCONFIRMED_PO("ALRT_OC_PURCHASE_ORDER"){
 		@Override
 		public int extractCount(FulfillmentAlertData fulfillmentAlertData, ConfirmationAlertData confirmationAlertData, ProductionAlertData productionAlertData) {
 			return confirmationAlertData == null ? 0 : confirmationAlertData.getPurchaseOrderCount();
 		}
+		
+		/** {@inheritDoc} */
+		@Override
+		public ConfirmationSearch createConfirmationSearch()
+		{
+			return ConfirmationSearchTemplateType.UNCONFIRMED_PURCHASE_ORDERS.createTemplateSearch();
+		}
 	},
-	OC_CHANGE_ORDER("ALRT_OC_CHANGE_ORDER"){
+	OC_UNCONFIRMED_CO("ALRT_OC_CHANGE_ORDER"){
 		@Override
 		public int extractCount(FulfillmentAlertData fulfillmentAlertData, ConfirmationAlertData confirmationAlertData, ProductionAlertData productionAlertData) {
 			return confirmationAlertData == null ? 0 : confirmationAlertData.getChangeOrderCount();
 		}
+		
+		/** {@inheritDoc} */
+		@Override
+		public ConfirmationSearch createConfirmationSearch()
+		{
+			return ConfirmationSearchTemplateType.UNCONFIRMED_CHANGE_ORDERS.createTemplateSearch();
+		}
 	},
-	OC_CANC_ORDER("ALRT_OC_CANC_ORDER"){
+	OC_UNCONFIRMED_CANCELLATION("ALRT_OC_CANC_ORDER"){
 		@Override
 		public int extractCount(FulfillmentAlertData fulfillmentAlertData, ConfirmationAlertData confirmationAlertData, ProductionAlertData productionAlertData) {
 			return confirmationAlertData == null ? 0 : confirmationAlertData.getCancellationCount();
+		}
+		
+		/** {@inheritDoc} */
+		@Override
+		public ConfirmationSearch createConfirmationSearch()
+		{
+			return ConfirmationSearchTemplateType.UNCONFIRMED_CANCELLATIONS.createTemplateSearch();
 		}
 	},
 	
@@ -80,19 +103,19 @@ public enum AlertType implements MappedEnum {
 			return productionAlertData == null ? 0 : productionAlertData.getEstProductionDatePastDueCount();
 		}
 	},
-	PROD_EST_DELV_PAST_DUE("ALRT_PROD_EST_DELV_PAST_DUE"){
+	PROD_EST_DELIVERY_PAST_DUE("ALRT_PROD_EST_DELV_PAST_DUE"){
 		@Override
 		public int extractCount(FulfillmentAlertData fulfillmentAlertData, ConfirmationAlertData confirmationAlertData, ProductionAlertData productionAlertData) {
 			return productionAlertData == null ? 0 : productionAlertData.getEstDeliveryDatePastDueCount();
 		}
 	},
-	PROD_PROD_HOLDS("ALRT_PROD_PROD_HOLDS"){
+	PROD_HOLDS("ALRT_PROD_PROD_HOLDS"){
 		@Override
 		public int extractCount(FulfillmentAlertData fulfillmentAlertData, ConfirmationAlertData confirmationAlertData, ProductionAlertData productionAlertData) {
 			return productionAlertData == null ? 0 : productionAlertData.getProdHoldsCount();
 		}
 	},
-	ALL_MISSING_INFO("ALRT_ALL_MISSING_INFO"){
+	PROD_ALL_MISSING_INFO("ALRT_ALL_MISSING_INFO"){
 		@Override
 		public int extractCount(FulfillmentAlertData fulfillmentAlertData, ConfirmationAlertData confirmationAlertData, ProductionAlertData productionAlertData) {
 			return productionAlertData == null ? 0 : productionAlertData.getMissingInfoCount();
@@ -104,31 +127,31 @@ public enum AlertType implements MappedEnum {
 			return productionAlertData == null ? 0 : productionAlertData.getDataConflictCount();
 		}
 	},
-	PROD_DELAY_COMM_REQ("ALRT_PROD_DELAY_COMM_REQ"){
+	PROD_DELAY_COMMENT_REQUIRED("ALRT_PROD_DELAY_COMM_REQ"){
 		@Override
 		public int extractCount(FulfillmentAlertData fulfillmentAlertData, ConfirmationAlertData confirmationAlertData, ProductionAlertData productionAlertData) {
 			return productionAlertData == null ? 0 : productionAlertData.getDelayCommReqCount();
 		}
 	},
-	PROD_PROD_DT_EARLY("ALRT_PROD_PROD_DT_EARLY"){
+	PROD_PRODUCTION_DATE_EARLY("ALRT_PROD_PROD_DT_EARLY"){
 		@Override
 		public int extractCount(FulfillmentAlertData fulfillmentAlertData, ConfirmationAlertData confirmationAlertData, ProductionAlertData productionAlertData) {
 			return productionAlertData == null ? 0 : productionAlertData.getProdDateEarlyCount();
 		}
 	},
-	PROD_PROD_DT_LATE("ALRT_PROD_PROD_DT_LATE"){
+	PROD_PRODUCTION_DATE_LATE("ALRT_PROD_PROD_DT_LATE"){
 		@Override
 		public int extractCount(FulfillmentAlertData fulfillmentAlertData, ConfirmationAlertData confirmationAlertData, ProductionAlertData productionAlertData) {
 			return productionAlertData == null ? 0 : productionAlertData.getProdDateLateCount();
 		}
 	},
-	PROD_DELV_DT_EARLY("ALRT_PROD_DELV_DT_EARLY"){
+	PROD_DELIVERY_DATE_EARLY("ALRT_PROD_DELV_DT_EARLY"){
 		@Override
 		public int extractCount(FulfillmentAlertData fulfillmentAlertData, ConfirmationAlertData confirmationAlertData, ProductionAlertData productionAlertData) {
 			return productionAlertData == null ? 0 : productionAlertData.getDeliveryDateEarlyCount();
 		}
 	},
-	PROD_DELV_DT_LATE("ALRT_PROD_DELV_DT_LATE"){
+	PROD_DELIVERY_DATE_LATE("ALRT_PROD_DELV_DT_LATE"){
 		@Override
 		public int extractCount(FulfillmentAlertData fulfillmentAlertData, ConfirmationAlertData confirmationAlertData, ProductionAlertData productionAlertData) {
 			return productionAlertData == null ? 0 : productionAlertData.getDeliveryDateLateCount();
@@ -140,7 +163,12 @@ public enum AlertType implements MappedEnum {
 	private final String alertKey;
 	
 	public abstract int extractCount(FulfillmentAlertData fulfillmentAlertData, ConfirmationAlertData confirmationAlertData, ProductionAlertData productionAlertData);
-
+	
+	public ConfirmationSearch createConfirmationSearch()
+	{
+		throw new UnsupportedOperationException("This alert (" + name() + ") does not pertain to Order Confirmation");
+	}
+	
 	private AlertType(String alertKey)
 	{
 		this.alertKey = alertKey;
@@ -168,5 +196,4 @@ public enum AlertType implements MappedEnum {
 	public String getAlertKey() {
 		return alertKey;
 	}
-	
 }

@@ -13,9 +13,9 @@ import org.springframework.context.annotation.Profile;
 import com.penske.apps.smccore.base.beans.LookupManager;
 import com.penske.apps.smccore.base.dao.LookupDAO;
 import com.penske.apps.smccore.base.service.CoreServiceMarker;
-import com.penske.apps.smccore.component.dao.unittemplate.UnitComponentMapperMarker;
 import com.penske.apps.smccore.component.service.ComponentServiceMarker;
 import com.penske.apps.smccore.component.service.unittemplate.UnitComponentServiceMarker;
+import com.penske.apps.smccore.search.service.CoreSearchServiceMarker;
 
 /**
  * Main configuration class for the SMC Core JAR
@@ -23,10 +23,10 @@ import com.penske.apps.smccore.component.service.unittemplate.UnitComponentServi
 @Configuration
 @Import({CoreMapperConfiguration.class})
 @ComponentScan(basePackageClasses={
-	UnitComponentMapperMarker.class,
 	UnitComponentServiceMarker.class,
 	ComponentServiceMarker.class,
 	CoreServiceMarker.class,
+	CoreSearchServiceMarker.class,
 })
 public class CoreConfiguration
 {

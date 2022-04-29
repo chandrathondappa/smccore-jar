@@ -1,7 +1,7 @@
-package com.penske.apps.smccore.base.domain;
+package com.penske.apps.smccore.search.domain;
 
-import com.penske.apps.smccore.base.domain.enums.AlertType;
 import com.penske.apps.smccore.base.domain.enums.SmcTab;
+import com.penske.apps.smccore.search.domain.enums.AlertType;
 
 /**
  * Information about a type of alert to notify the user that some part of the system is outside normal tolerances.
