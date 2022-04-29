@@ -42,6 +42,7 @@ import com.penske.apps.smccore.base.domain.enums.EmailTemplateType;
 import com.penske.apps.smccore.base.domain.enums.LookupKey;
 import com.penske.apps.smccore.base.domain.enums.PayableStatus;
 import com.penske.apps.smccore.base.domain.enums.SecurityFunction;
+import com.penske.apps.smccore.base.domain.enums.SmcTab;
 import com.penske.apps.smccore.base.domain.enums.UserDepartment;
 import com.penske.apps.smccore.base.domain.enums.UserType;
 import com.penske.apps.smccore.component.domain.RuleOutcome;
@@ -52,6 +53,7 @@ import com.penske.apps.smccore.component.domain.unittemplate.UnitMasterInfo;
 import com.penske.apps.smccore.search.domain.ConfirmationAlertData;
 import com.penske.apps.smccore.search.domain.FulfillmentAlertData;
 import com.penske.apps.smccore.search.domain.ProductionAlertData;
+import com.penske.apps.smccore.search.domain.SmcAlert;
 import com.penske.apps.smccore.search.domain.enums.AlertType;
 
 /**
@@ -163,6 +165,24 @@ public final class CoreTestUtil
 		set(result, "emailType", emailType);
 		set(result, "subjectTemplate", subjectTemplate);
 		set(result, "bodyTemplate", bodyTemplate);
+		return result;
+	}
+	
+	public static SmcAlert createSmcAlert(SmcTab tabKey, AlertType alertType, String name)
+	{
+		return createSmcAlert(tabKey, alertType, name, -1);
+	}
+	
+	public static SmcAlert createSmcAlert(SmcTab tabKey, AlertType alertType, String name, int measureValue)
+	{
+		SmcAlert result = newInstance(SmcAlert.class);
+		set(result, "alertID", idCounter++);
+		set(result, "alertType", alertType);
+		set(result, "alertName", name);
+		set(result, "visibleToPenske", true);
+		set(result, "visibleToVendor", true);
+		set(result, "measureValue", measureValue);
+		set(result, "tabKey", tabKey);
 		return result;
 	}
 	

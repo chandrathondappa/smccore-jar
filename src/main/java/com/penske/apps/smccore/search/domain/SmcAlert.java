@@ -20,7 +20,7 @@ public class SmcAlert
 	private String templateKey;
 	/** The order in which this alert should be displayed, relative to other alerts under the same tab and alert header */
 	private int displaySequence;
-	/** The ID of the section the alert should be displaye under in the home screen */
+	/** The ID of the section the alert should be displayed under in the home screen */
 	private int headerId;
 	/** True if the alert should be visible to a vendor user. False if it should be hidden from them. */
 	private boolean visibleToVendor;
