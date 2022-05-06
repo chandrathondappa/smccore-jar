@@ -100,7 +100,7 @@
 				SELECT map.PO_NUMBER
 				FROM SMC.SMC_PO_UNIT_MAP map
 				JOIN SMC.SMC_UNIT_MASTER mast ON mast.MASTER_ID = map.MASTER_ID
-				WHERE map.UNIT_NUMBER IN (
+				WHERE mast.UNIT_NUMBER IN (
 					<foreach collection="search.unitNumbers" item="unitNumber" separator=",">#{unitNumber}</foreach>
 				)
 			)
