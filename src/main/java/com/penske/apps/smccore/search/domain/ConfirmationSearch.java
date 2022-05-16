@@ -18,6 +18,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.penske.apps.smccore.base.domain.User;
 import com.penske.apps.smccore.base.domain.enums.PoStatus;
+import com.penske.apps.smccore.base.util.DateUtil;
 import com.penske.apps.smccore.base.util.Util;
 
 /**
@@ -236,6 +237,27 @@ public class ConfirmationSearch
 			throw new IllegalStateException("User has not been set on confirmation search. Can not run search query without filtering by user permissions.");
 		
 		return penskeUser;
+	}
+	
+	//***** MODIFIED ACCESSORS *****//
+	@JsonIgnore
+	public String getFormattedConfirmedDateFrom() {
+		return DateUtil.formatDateUS(confirmedDateFrom);
+	}
+	
+	@JsonIgnore
+	public String getFormattedConfirmedDateTo() {
+		return DateUtil.formatDateUS(confirmedDateTo);
+	}
+	
+	@JsonIgnore
+	public String getFormattedIssueDateFrom() {
+		return DateUtil.formatDateUS(issueDateFrom);
+	}
+	
+	@JsonIgnore
+	public String getFormattedIssueDateTo() {
+		return DateUtil.formatDateUS(issueDateTo);
 	}
 	
 	//***** DEFAULT ACCESSORS *****//
