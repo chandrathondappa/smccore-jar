@@ -11,10 +11,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.penske.apps.smccore.base.domain.User;
 import com.penske.apps.smccore.base.domain.enums.PoStatus;
 import com.penske.apps.smccore.base.util.Util;
@@ -45,12 +46,28 @@ public class ConfirmationSearch
 	private Integer daysUnconfirmed;
 	
 	/** The start date for searches on the issue date */
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@JsonDeserialize(using = LocalDateDeserializer.class)
+	@JsonSerialize(using = LocalDateSerializer.class)
 	private LocalDate issueDateFrom;
 	/** The end date for searches on the issue date */
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@JsonDeserialize(using = LocalDateDeserializer.class)
+	@JsonSerialize(using = LocalDateSerializer.class)
 	private LocalDate issueDateTo;
 	/** The start date for searches on the confirmed date */
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@JsonDeserialize(using = LocalDateDeserializer.class)
+	@JsonSerialize(using = LocalDateSerializer.class)
 	private LocalDate confirmedDateFrom;
 	/** The end date for searches on the confirmed date */
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@JsonDeserialize(using = LocalDateDeserializer.class)
+	@JsonSerialize(using = LocalDateSerializer.class)
 	private LocalDate confirmedDateTo;
 	
 	/**
@@ -128,6 +145,7 @@ public class ConfirmationSearch
 	 * Gets a tokenized list of the individual PO numbers the user wants to search for
 	 * @return The PO numbers, listed out
 	 */
+	@JsonIgnore
 	public Set<Integer> getPoNumbers()
 	{
 		return Util.getTokenizedPoNumbers(poNumberString, null);
@@ -137,6 +155,7 @@ public class ConfirmationSearch
 	 * Gets a tokenized list of all the individual unit numbers the user wants to search for
 	 * @return The unit numbers, listed out
 	 */
+	@JsonIgnore
 	public Set<String> getUnitNumbers()
 	{
 		return Util.getTokenizedUnitNumbers(unitNumberString, null, true);
@@ -147,6 +166,7 @@ public class ConfirmationSearch
 	 * 	This is separate from the operator the user passed from the client, so that we aren't open to SQL injection attacks.
 	 * @return The operator to use to compare CO numbers when searching.
 	 */
+	@JsonIgnore
 	public String getCoOperator()
 	{
 		if(StringUtils.isBlank(coOperatorString))
@@ -165,7 +185,8 @@ public class ConfirmationSearch
 	 * Gets the actual Cancel Sequence operator string that should be used in the query.
 	 * 	This is separate from the operator the user passed from the client, so that we aren't open to SQL injection attacks.
 	 * @return The operator to use to compare cancel sequences when searching.
-	 */	
+	 */
+	@JsonIgnore
 	public String getCancelSequenceOperator()
 	{
 		if(StringUtils.isBlank(cancelSequenceOperatorString))
@@ -185,6 +206,7 @@ public class ConfirmationSearch
 	 * 	This is separate from the operator the user passed from the client, so that we aren't open to SQL injection attacks.
 	 * @return The operator to use to compare the number of days unconfirmed when searching.
 	 */
+	@JsonIgnore
 	public String getDaysUnconfirmedOperator()
 	{
 		if(StringUtils.isBlank(daysUnconfirmedOperatorString))
@@ -201,11 +223,13 @@ public class ConfirmationSearch
 		}
 	}
 	
+	@JsonIgnore
 	public String getVendorOrderNumberForQuery()
 	{
 		return StringUtils.isBlank(this.vendorOrderNumber) ? null : "%" + this.vendorOrderNumber + "%";
 	}
 
+	@JsonIgnore
 	public Boolean getPenskeUser()
 	{
 		if(penskeUser == null)
