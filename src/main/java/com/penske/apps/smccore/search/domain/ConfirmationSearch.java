@@ -8,7 +8,13 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.penske.apps.smccore.base.domain.User;
 import com.penske.apps.smccore.base.domain.enums.PoStatus;
 import com.penske.apps.smccore.base.util.Util;
@@ -87,6 +93,35 @@ public class ConfirmationSearch
 		return this;
 	}
 	
+	public ConfirmationSearch() {
+	}
+
+	public ConfirmationSearch(String poNumberString, String unitNumberString, String vendorOrderNumber,
+			String coOperatorString, Integer coNumber, String cancelSequenceOperatorString, Integer cancelSequence,
+			String daysUnconfirmedOperatorString, Integer daysUnconfirmed, LocalDate issueDateFrom,
+			LocalDate issueDateTo, LocalDate confirmedDateFrom, LocalDate confirmedDateTo, Boolean sentViaEdi,
+			List<PoStatus> statuses, Boolean penskeUser, List<Integer> vendorIdsFromFilter) {
+		this.poNumberString = poNumberString;
+		this.unitNumberString = unitNumberString;
+		this.vendorOrderNumber = vendorOrderNumber;
+		this.coOperatorString = coOperatorString;
+		this.coNumber = coNumber;
+		this.cancelSequenceOperatorString = cancelSequenceOperatorString;
+		this.cancelSequence = cancelSequence;
+		this.daysUnconfirmedOperatorString = daysUnconfirmedOperatorString;
+		this.daysUnconfirmed = daysUnconfirmed;
+		this.issueDateFrom = issueDateFrom;
+		this.issueDateTo = issueDateTo;
+		this.confirmedDateFrom = confirmedDateFrom;
+		this.confirmedDateTo = confirmedDateTo;
+		this.sentViaEdi = sentViaEdi;
+		this.statuses = statuses;
+		this.penskeUser = penskeUser;
+		this.vendorIdsFromFilter = vendorIdsFromFilter;
+	}
+
+
+
 	//***** SPECIALIZED GETTERS FOR SEARCH QUERY *****//
 	//These methods should not be serialized to JSON when sending the search to the client, but are only here for using the object in MyBatis
 	/**
