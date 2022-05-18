@@ -47,13 +47,14 @@ public class UserDAOTest extends MyBatisDaoTest
 	@Test
     public void shouldGetUsers()
 	{
-        dao.getUsers("600127842", null, null, null, true, false);
-        dao.getUsers("600127842", null, null, null, true, true);
-        dao.getUsers("600127842", null, null, null, false, true);
-        dao.getUsers(null, 1234, null, null, true, false);
-        dao.getUsers(null, 1234, null, null, true, true);
-        dao.getUsers(null, 1234, null, null, false, true);
-        dao.getUsers(null, null, UserType.PENSKE, UserDepartment.SUPPLY_SPECIALIST, false, false);
+        dao.getUsers("600127842", null, null, null, true, false, false);
+        dao.getUsers("600127842", null, null, null, true, true, false);
+        dao.getUsers("600127842", null, null, null, false, true, false);
+        dao.getUsers(null, 1234, null, null, true, false, false);
+        dao.getUsers(null, 1234, null, null, true, true, false);
+        dao.getUsers(null, 1234, null, null, false, true, false);
+        dao.getUsers(null, null, UserType.PENSKE, UserDepartment.SUPPLY_SPECIALIST, false, false, false);
+        dao.getUsers(null, null, UserType.PENSKE, UserDepartment.SUPPLY_SPECIALIST, false, false, true);
     }
 	
 	@Test

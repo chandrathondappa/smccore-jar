@@ -80,7 +80,7 @@ public class UserServiceTest
 	public void shouldGetUser()
 	{
 		User user = CoreTestUtil.createUser(1234, "600013219", "JOHN", "PAPAVASILION", "test@penske.com", UserType.PENSKE);
-		when(userDAO.getUsers("600013219", null, null, null, true, false)).thenReturn(Arrays.asList(user));
+		when(userDAO.getUsers("600013219", null, null, null, true, false, false)).thenReturn(Arrays.asList(user));
 
 		User actualUser = service.getUser("600013219", false);
 

@@ -79,7 +79,7 @@ public class UserService
 		if(StringUtils.isBlank(sso))
 			return null;
 		
-		List<User> users = userDAO.getUsers(sso, null, null, null, loadSecurityFunctions, loadAssociatedVendors);
+		List<User> users = userDAO.getUsers(sso, null, null, null, loadSecurityFunctions, loadAssociatedVendors, false);
 		if(users == null || users.isEmpty())
 			return null;
 		else
@@ -95,7 +95,7 @@ public class UserService
 	 */
 	public User getUser(int userId, boolean loadAssociatedVendors, boolean loadSecurityFunctions)
 	{
-		List<User> users = userDAO.getUsers(null, userId, null, null, loadSecurityFunctions, loadAssociatedVendors);
+		List<User> users = userDAO.getUsers(null, userId, null, null, loadSecurityFunctions, loadAssociatedVendors, false);
 		if(users == null || users.isEmpty())
 			return null;
 		else
@@ -103,7 +103,7 @@ public class UserService
 	}
 	
     /**
-     * Gets all users matching a given user type and department.
+     * Gets all active users matching a given user type and department.
      * Does not look up security functions for those users, so calling {@link User#getSecurityFunctions()} on the returned users will throw an exception.
      * @param userType The type of user to look up
      * @param userDepartment The department within penske to look up users for.
@@ -111,7 +111,19 @@ public class UserService
      */
     public List<User> getUsersWithoutSecurityFunctions(UserType userType, UserDepartment userDepartment)
     {
-    	return userDAO.getUsers(null, null, userType, userDepartment, false, false);
+    	return userDAO.getUsers(null, null, userType, userDepartment, false, false, false);
+    }
+    
+    /**
+     * Gets all active users matching a given user type and department.
+     * Does not look up security functions for those users, so calling {@link User#getSecurityFunctions()} on the returned users will throw an exception.
+     * @param userType The type of user to look up
+     * @param userDepartment The department within penske to look up users for.
+     * @return The users of the given type and department
+     */
+    public List<User> getAllUsers(UserType userType, UserDepartment userDepartment)
+    {
+    	return userDAO.getUsers(null, null, userType, userDepartment, false, false, true);
     }
 
     /**

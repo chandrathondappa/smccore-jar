@@ -50,19 +50,23 @@
  			</choose> AS LOAD_SECURITY_FUNCTIONS_AND_VENDORS
  		FROM SMC.SMC_USER_MASTER u
  		LEFT JOIN SMC.SMC_ORG_MASTER org ON org.ORG_ID = u.ORG_ID
- 		WHERE u.STATUS = 'A'
- 		<if test="userId != null">
- 			AND u.USER_ID = #{userId}
- 		</if>
-		<if test="sso != null">
-	  		AND u.SSO = #{sso}
-		</if>
-		<if test="userType != null">
-			AND u.TYPE_ID = #{userType}
-		</if>
-		<if test="userDepartment != null">
-			AND u.DEPT_ID = #{userDepartment}
-		</if>
+ 		<where>
+ 			<if test="!fetchInactiveUsers">
+	 			u.STATUS = 'A'
+	 		</if>
+	 		<if test="userId != null">
+	 			AND u.USER_ID = #{userId}
+	 		</if>
+			<if test="sso != null">
+		  		AND u.SSO = #{sso}
+			</if>
+			<if test="userType != null">
+				AND u.TYPE_ID = #{userType}
+			</if>
+			<if test="userDepartment != null">
+				AND u.DEPT_ID = #{userDepartment}
+			</if>
+		</where>
  		ORDER BY u.FIRST_NAME, u.LAST_NAME
  	</select>
  	

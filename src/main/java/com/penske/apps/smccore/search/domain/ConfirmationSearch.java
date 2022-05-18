@@ -8,11 +8,18 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.penske.apps.smccore.base.domain.User;
 import com.penske.apps.smccore.base.domain.enums.PoStatus;
+import com.penske.apps.smccore.base.util.DateUtil;
 import com.penske.apps.smccore.base.util.Util;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Represents all the search parameters that can be used to filter a search on the Order Confirmation screen.
@@ -40,12 +47,28 @@ public class ConfirmationSearch
 	private Integer daysUnconfirmed;
 	
 	/** The start date for searches on the issue date */
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@JsonDeserialize(using = LocalDateDeserializer.class)
+	@JsonSerialize(using = LocalDateSerializer.class)
 	private LocalDate issueDateFrom;
 	/** The end date for searches on the issue date */
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@JsonDeserialize(using = LocalDateDeserializer.class)
+	@JsonSerialize(using = LocalDateSerializer.class)
 	private LocalDate issueDateTo;
 	/** The start date for searches on the confirmed date */
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@JsonDeserialize(using = LocalDateDeserializer.class)
+	@JsonSerialize(using = LocalDateSerializer.class)
 	private LocalDate confirmedDateFrom;
 	/** The end date for searches on the confirmed date */
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@JsonDeserialize(using = LocalDateDeserializer.class)
+	@JsonSerialize(using = LocalDateSerializer.class)
 	private LocalDate confirmedDateTo;
 	
 	/**
@@ -88,6 +111,35 @@ public class ConfirmationSearch
 		return this;
 	}
 	
+	public ConfirmationSearch() {
+	}
+
+	public ConfirmationSearch(String poNumberString, String unitNumberString, String vendorOrderNumber,
+			String coOperatorString, Integer coNumber, String cancelSequenceOperatorString, Integer cancelSequence,
+			String daysUnconfirmedOperatorString, Integer daysUnconfirmed, LocalDate issueDateFrom,
+			LocalDate issueDateTo, LocalDate confirmedDateFrom, LocalDate confirmedDateTo, Boolean sentViaEdi,
+			List<PoStatus> statuses, Boolean penskeUser, List<Integer> vendorIdsFromFilter) {
+		this.poNumberString = poNumberString;
+		this.unitNumberString = unitNumberString;
+		this.vendorOrderNumber = vendorOrderNumber;
+		this.coOperatorString = coOperatorString;
+		this.coNumber = coNumber;
+		this.cancelSequenceOperatorString = cancelSequenceOperatorString;
+		this.cancelSequence = cancelSequence;
+		this.daysUnconfirmedOperatorString = daysUnconfirmedOperatorString;
+		this.daysUnconfirmed = daysUnconfirmed;
+		this.issueDateFrom = issueDateFrom;
+		this.issueDateTo = issueDateTo;
+		this.confirmedDateFrom = confirmedDateFrom;
+		this.confirmedDateTo = confirmedDateTo;
+		this.sentViaEdi = sentViaEdi;
+		this.statuses = statuses;
+		this.penskeUser = penskeUser;
+		this.vendorIdsFromFilter = vendorIdsFromFilter;
+	}
+
+
+
 	//***** SPECIALIZED GETTERS FOR SEARCH QUERY *****//
 	//These methods should not be serialized to JSON when sending the search to the client, but are only here for using the object in MyBatis
 	/**
@@ -185,6 +237,27 @@ public class ConfirmationSearch
 			throw new IllegalStateException("User has not been set on confirmation search. Can not run search query without filtering by user permissions.");
 		
 		return penskeUser;
+	}
+	
+	//***** MODIFIED ACCESSORS *****//
+	@JsonIgnore
+	public String getFormattedConfirmedDateFrom() {
+		return DateUtil.formatDateUS(confirmedDateFrom);
+	}
+	
+	@JsonIgnore
+	public String getFormattedConfirmedDateTo() {
+		return DateUtil.formatDateUS(confirmedDateTo);
+	}
+	
+	@JsonIgnore
+	public String getFormattedIssueDateFrom() {
+		return DateUtil.formatDateUS(issueDateFrom);
+	}
+	
+	@JsonIgnore
+	public String getFormattedIssueDateTo() {
+		return DateUtil.formatDateUS(issueDateTo);
 	}
 	
 	//***** DEFAULT ACCESSORS *****//

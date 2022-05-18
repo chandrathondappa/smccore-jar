@@ -23,7 +23,7 @@ public interface UserDAO
 	//***** Users *****//
 	@NonVendorQuery
 	public List<User> getUsers(@Param("sso") String sso, @Param("userId") Integer userId, @Param("userType") UserType userType, @Param("userDepartment") UserDepartment userDepartment,
-		@Param("loadSecurityFunctions") boolean loadSecurityFunctions, @Param("loadVendors") boolean loadVendors);
+		@Param("loadSecurityFunctions") boolean loadSecurityFunctions, @Param("loadVendors") boolean loadVendors, @Param("fetchInactiveUsers") boolean fetchInactiveUsers);
 
 	@NonVendorQuery
 	public UserSecurity getUserSecurity(@Param("user") User user);
