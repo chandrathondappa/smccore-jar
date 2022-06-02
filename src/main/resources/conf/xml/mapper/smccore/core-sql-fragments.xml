@@ -125,5 +125,64 @@
 			AND purchDetails.VENDOR_VISIBILITY = 'Y'
 			AND purchDetails.IS_VISIBLE_TO_VENDOR = 'Y'
 		</if>
+		<if test="search.corp != null and !search.corp.isEmpty()">
+			AND header.CORP = #{${search}.corp}
+		</if>
+		<if test="search.customerName != null and !search.customerName.isEmpty()">
+			AND header.CUSTOMER_NAME = #{${search}.customerName}
+		</if>
+		<if test="search.customerNumber != null and !search.customerNumber.isEmpty()">
+			AND header.CUSTOMER_NUMBER = #{${search}.customerNumber}
+		</if>
+		<if test="search.makes != null and !search.makes.isEmpty()">
+			AND header.OEM IN (
+				<foreach collection="search.makes" item="make" separator=",">#{make}</foreach>
+			)
+		</if>
+		<if test="search.modelYears != null and !search.modelYears.isEmpty()">
+			AND header.MODEL_YEAR IN (
+				<foreach collection="search.modelYears" item="modelYear" separator=",">#{modelYear}</foreach>
+			)
+		</if>
+		<if test="search.models != null and !search.models.isEmpty()">
+			AND header.MODEL IN (
+				<foreach collection="search.models" item="model" separator=",">#{model}</foreach>
+			)
+		</if>
+		<if test="search.vehicleTypes != null and !search.vehicleTypes.isEmpty()">
+			AND header.VEHICLE_TYPE IN (
+				<foreach collection="search.vehicleTypes" item="vehicleType" separator=",">#{vehicleType}</foreach>
+			)
+		</if>
+		<if test="search.vehicleUses != null and !search.vehicleUses.isEmpty()">
+			AND header.VEHICLE_USE IN (
+				<foreach collection="search.vehicleUses" item="vehicleUse" separator=",">#{vehicleUse}</foreach>
+			)
+		</if>
+		<if test="search.poCategories != null and !search.poCategories.isEmpty()">
+			AND header.PO_CATEGORY IN (
+				<foreach collection="search.poCategories" item="poCategory" separator=",">#{poCategory}</foreach>
+			)
+		</if>
+		<if test="search.poSubCategories != null and !search.poSubCategories.isEmpty()">
+			AND header.PO_SUB_CATEGORY IN (
+				<foreach collection="search.poSubCategories" item="poSubCategory" separator=",">#{poSubCategory}</foreach>
+			)
+		</if>
+		<if test="search.poSubCategories != null and !search.poSubCategories.isEmpty()">
+			AND header.PO_SUB_CATEGORY IN (
+				<foreach collection="search.poSubCategories" item="poSubCategory" separator=",">#{poSubCategory}</foreach>
+			)
+		</if>
+		<if test="search.vendorIds != null and !search.vendorIds.isEmpty()">
+			AND vend.VENDOR_ID IN (
+				<foreach collection="search.vendorIds" item="vendorId" separator=",">#{vendorId}</foreach>
+			)
+		</if>
+		<if test="search.vsSpecialists != null and !search.vsSpecialists.isEmpty()">
+			AND header.CREATED_BY IN (
+				<foreach collection="search.vsSpecialists" item="vsSpecialist" separator=",">#{vsSpecialist}</foreach>
+			)
+		</if>
 	</sql>
 </mapper>
