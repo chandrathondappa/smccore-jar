@@ -3,6 +3,7 @@
  */
 package com.penske.apps.smccore;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.lang.reflect.Constructor;
@@ -21,10 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.mockito.invocation.InvocationOnMock;
@@ -119,7 +122,22 @@ public final class CoreTestUtil
 			}
 		};
 	}
-
+	
+	public static LookupManager createLookupManager(List<Pair<LookupKey, String>> values)
+	{
+		List<LookupItem> items = IntStream.range(0, values.size())
+			.mapToObj(i -> createLookupItem(values.get(i).getLeft(), values.get(i).getRight(), i))
+			.collect(toList());
+		
+		return new LookupManager() {
+			private final LookupContainer lookupContainer = new LookupContainer(items, Collections.emptyList());
+			
+			@Override public LookupContainer getLookupContainer() {
+				return lookupContainer;
+			}
+		};
+	}
+	
 	//***** DOMAIN OBJECT HELPERS *****//
 	public static void addSecurityFunctions(User user, SecurityFunction ... functions)
 	{

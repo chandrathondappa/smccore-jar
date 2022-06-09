@@ -42,6 +42,9 @@ public enum LookupKey
 	DAILY_BATCH_APP_LINK("DAILY_APP_LINK"),
 	/** The link that external vendor users can go to in order to get to their SSO login page */
 	PENSKE_SIGN_ON_URL("PENSKE_SIGN_ON_URL"),
+
+	//***** IDs / Info for Remote Services *****//
+	VARIANCE_SERVICE_CLIENT_ID("CLIENT_ID_VARIANCE_SERVICE"),
 	
 	//***** Documents *****//
 	/** The list of file types allowed to be uploaded into SMC. Anything else will get tagged with a "pdf" extension */

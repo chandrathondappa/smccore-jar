@@ -19,9 +19,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.junit.AfterClass;
 import org.springframework.aop.framework.AdvisedSupport;
+import org.springframework.core.DecoratingProxy;
 
 import com.penske.apps.smccore.base.annotation.SkipQueryTest;
 
@@ -38,8 +40,8 @@ public abstract class MyBatisDaoTest
 	private static final Map<Class<?>, Set<Method>> METHODS_TO_RUN = new HashMap<Class<?>, Set<Method>>();
 	
 	static {
-		for(Method method : AdvisedSupport.class.getMethods())
-			PROXY_SKIP_METHODS.add(method.getName());
+		Stream.of(AdvisedSupport.class.getMethods()).forEach(m -> PROXY_SKIP_METHODS.add(m.getName()));
+		Stream.of(DecoratingProxy.class.getMethods()).forEach(m -> PROXY_SKIP_METHODS.add(m.getName()));
 	}
 	
 	protected <T> T trackMethodCalls(T daoObject, Class<T> daoClass)
