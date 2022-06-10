@@ -31,6 +31,7 @@ public final class DateUtil
 	public static final String DATE_FORMAT_US_SHORT_YEAR =	"MM/dd/yy";
 	private static final String DATE_FORMAT_ISO =			"yyyy-MM-dd";
     private static final String DATE_TIME_FORMAT_ISO =		"yyyy-MM-dd HH:mm:ss.SSS";
+    public static final String DATE_TIME_FORMAT_ISO_LOCAL_DATE_TIME = "yyyy-MM-dd'T'HH:mm:ss";
 	public static final String DATE_TIME_FORMAT_US =		"MM/dd/yyyy hh:mm:ss a";
 	private static final String FOLDER_NAME_FORMAT =		"yyyyMMdd";
 
