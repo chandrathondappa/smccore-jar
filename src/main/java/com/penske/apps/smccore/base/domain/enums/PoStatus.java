@@ -1,8 +1,8 @@
 package com.penske.apps.smccore.base.domain.enums;
 
 /**
- * The status of a PO from the Purchasing Details table
- * Used to determine whether a deliverable has been effectively closed and paid for.
+ * The different statuses an order can go through between the time it is created and the time it is confirmed by the vendor.
+ * Corresponds to the status in the SMC_PURCHASING_DETAILS table.
  */
 public enum PoStatus implements MappedEnum {
 	

@@ -1,10 +1,11 @@
-package com.penske.apps.smccore.base.domain;
+package com.penske.apps.smccore.search.domain;
 
 /**
  * Information about how many vehicles have certain conditions that are highlighted in the Order Confirmation module.
  */
 public class ConfirmationAlertData
 {
+	private int myId;
 	/** How many unconfirmed cancellations there are */
 	private int cancellationCount;
 	/** How many unconfirmed change orders there are */
@@ -21,6 +22,10 @@ public class ConfirmationAlertData
 	}
 	public int getPurchaseOrderCount() {
 		return purchaseOrderCount;
+	}
+	public int getMyId()
+	{
+		return myId;
 	}
 	
 }

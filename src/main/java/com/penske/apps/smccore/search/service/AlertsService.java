@@ -1,28 +1,34 @@
-package com.penske.apps.smccore.base.service;
+package com.penske.apps.smccore.search.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.penske.apps.smccore.base.dao.AlertsDAO;
-import com.penske.apps.smccore.base.domain.ConfirmationAlertData;
-import com.penske.apps.smccore.base.domain.FulfillmentAlertData;
-import com.penske.apps.smccore.base.domain.ProductionAlertData;
-import com.penske.apps.smccore.base.domain.SmcAlert;
 import com.penske.apps.smccore.base.domain.User;
 import com.penske.apps.smccore.base.domain.enums.SecurityFunction;
 import com.penske.apps.smccore.base.domain.enums.SmcTab;
 import com.penske.apps.smccore.base.domain.enums.UserType;
+import com.penske.apps.smccore.base.service.UserService;
+import com.penske.apps.smccore.search.dao.AlertsDAO;
+import com.penske.apps.smccore.search.domain.ConfirmationAlertData;
+import com.penske.apps.smccore.search.domain.ConfirmationSearch;
+import com.penske.apps.smccore.search.domain.FulfillmentAlertData;
+import com.penske.apps.smccore.search.domain.ProductionAlertData;
+import com.penske.apps.smccore.search.domain.SearchTemplate;
+import com.penske.apps.smccore.search.domain.SmcAlert;
+import com.penske.apps.smccore.search.domain.enums.AlertType;
 
 @Service
 public class AlertsService {
 	
 	private final AlertsDAO alertsDAO;
 	private final UserService userService;
-	
+
+	//***** Alerts *****//
 	@Autowired
 	public AlertsService(AlertsDAO alertsDAO, UserService userService)
 	{
@@ -30,8 +36,8 @@ public class AlertsService {
 		this.userService = userService;
 	}
 	
-	public List<SmcAlert> getAlertsForTab(SmcTab tab, int headerId, UserType userType, UserType penskeUserType) {
-		return alertsDAO.getAlertsForTab(tab, headerId, userType, penskeUserType);
+	public List<SmcAlert> getAlertsForTab(SmcTab tab, Integer headerId, UserType userType) {
+		return alertsDAO.getAlertsForTab(tab, headerId, userType, UserType.PENSKE);
 	}
 	
 	public FulfillmentAlertData getFulfillmentAlertData(User user)
@@ -84,19 +90,39 @@ public class AlertsService {
 	}
 
 	public ConfirmationAlertData getConfirmationAlertDataByVendorId(User user) {
+		
+		ConfirmationSearch poCountSearch = AlertType.OC_UNCONFIRMED_PO.createConfirmationSearch().asUser(user, null);
+		ConfirmationSearch coCountSearch = AlertType.OC_UNCONFIRMED_CO.createConfirmationSearch().asUser(user, null);
+		ConfirmationSearch cancellationSearch = AlertType.OC_UNCONFIRMED_CANCELLATION.createConfirmationSearch().asUser(user, null);
+		
+		ConfirmationSearch whereClauseSearch = new ConfirmationSearch().asUser(user, null);
+		Collection<Integer> associatedVendorIds;
 		if(UserType.VENDOR == user.getUserType())
 		{
 			if(user.getAssociatedVendorIds().isEmpty())
 				return null;
 			else
-				return alertsDAO.getConfirmationAlertData(user.getAssociatedVendorIds(), true);
+				associatedVendorIds = user.getAssociatedVendorIds();
 		}
 		else {
 			List<Integer> vendorIdsFromFilter = userService.getVendorIdsFromVendorFilter(user);
 			if(vendorIdsFromFilter == null || vendorIdsFromFilter.isEmpty())
-				return null;
+				associatedVendorIds = user.getAssociatedVendorIds();
 			else
-				return alertsDAO.getConfirmationAlertData(vendorIdsFromFilter, false);
+				associatedVendorIds = vendorIdsFromFilter;
 		}
+		
+		return alertsDAO.getConfirmationAlertData(associatedVendorIds, poCountSearch, coCountSearch, cancellationSearch, whereClauseSearch);
+	}
+
+	//***** Search Templates *****//
+	public List<SearchTemplate> getSearchTemplatesForUser(SmcTab tab, User user)
+	{
+		return alertsDAO.getSearchTemplates(tab, user.getUserType(), UserType.PENSKE);
+	}
+	
+	public List<SearchTemplate> getAllSearchTemplates()
+	{
+		return alertsDAO.getSearchTemplates(null, null, UserType.PENSKE);
 	}
 }

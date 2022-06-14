@@ -18,9 +18,10 @@ import org.springframework.jdbc.BadSqlGrammarException;
 
 import com.penske.apps.smccore.CoreTestUtil;
 import com.penske.apps.smccore.TestData;
-import com.penske.apps.smccore.base.dao.AlertsDAO;
-import com.penske.apps.smccore.base.domain.FulfillmentAlertData;
 import com.penske.apps.smccore.base.domain.User;
+import com.penske.apps.smccore.search.dao.AlertsDAO;
+import com.penske.apps.smccore.search.domain.FulfillmentAlertData;
+import com.penske.apps.smccore.search.service.AlertsService;
 
 /**
  * Class under test: {@link AlertsService}

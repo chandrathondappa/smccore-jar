@@ -11,9 +11,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
-import org.springframework.test.context.jdbc.SqlGroup;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,12 +29,6 @@ import com.penske.apps.smccore.configuration.EmbeddedDataSourceConfiguration;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={CoreConfiguration.class, EmbeddedDataSourceConfiguration.class})
-@SqlGroup({
-	@Sql(scripts = "/setup/create-corp-schema.sql"),
-	@Sql(scripts = "/setup/create-smc-schema.sql"),
-	@Sql(scripts = "/setup/drop-corp-schema.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD),
-	@Sql(scripts = "/setup/drop-smc-schema.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
-})
 @ActiveProfiles(ProfileType.TEST)
 @Transactional
 public class UserDAOTest extends MyBatisDaoTest
@@ -56,13 +47,14 @@ public class UserDAOTest extends MyBatisDaoTest
 	@Test
     public void shouldGetUsers()
 	{
-        dao.getUsers("600127842", null, null, null, true, false);
-        dao.getUsers("600127842", null, null, null, true, true);
-        dao.getUsers("600127842", null, null, null, false, true);
-        dao.getUsers(null, 1234, null, null, true, false);
-        dao.getUsers(null, 1234, null, null, true, true);
-        dao.getUsers(null, 1234, null, null, false, true);
-        dao.getUsers(null, null, UserType.PENSKE, UserDepartment.SUPPLY_SPECIALIST, false, false);
+        dao.getUsers("600127842", null, null, null, true, false, false);
+        dao.getUsers("600127842", null, null, null, true, true, false);
+        dao.getUsers("600127842", null, null, null, false, true, false);
+        dao.getUsers(null, 1234, null, null, true, false, false);
+        dao.getUsers(null, 1234, null, null, true, true, false);
+        dao.getUsers(null, 1234, null, null, false, true, false);
+        dao.getUsers(null, null, UserType.PENSKE, UserDepartment.SUPPLY_SPECIALIST, false, false, false);
+        dao.getUsers(null, null, UserType.PENSKE, UserDepartment.SUPPLY_SPECIALIST, false, false, true);
     }
 	
 	@Test

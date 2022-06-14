@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.2//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.penske.apps.smccore.base.dao.AlertsDAO">
+<mapper namespace="com.penske.apps.smccore.search.dao.AlertsDAO">
 
-	<select id="getAlertsForTab" resultType="com.penske.apps.smccore.base.domain.SmcAlert">
+	<!-- ***** Alerts ***** -->
+	<select id="getAlertsForTab" resultType="SmcAlert">
 		SELECT 
 			ALRT.ALERT_ID,
 			ALRT.ALERT_KEY as alertType,
@@ -42,7 +43,7 @@
 		ORDER BY ALRT.DISPLAY_SEQUENCE
 	</select>	
 	
-	<select id="getFullfillmentAlertData" parameterType="String" resultType="com.penske.apps.smccore.base.domain.FulfillmentAlertData">
+	<select id="getFullfillmentAlertData" parameterType="String" resultType="FulfillmentAlertData">
  		SELECT
 			SUM(CASE WHEN CNT_OF_WORKING = 'Y' THEN 1 ELSE 0 END) AS workingCount,
 			SUM(CASE WHEN CNT_OF_PENDED = 'Y' THEN 1 ELSE 0 END) AS pendingCount,
@@ -67,7 +68,7 @@
 		) 
  	</select>
  	
- 	<select id="getProductionAlertData" parameterType="String" resultType="com.penske.apps.smccore.base.domain.ProductionAlertData">
+ 	<select id="getProductionAlertData" parameterType="String" resultType="ProductionAlertData">
  		SELECT
 			SUM(CASE WHEN 
 				UMICS.SUM_CONFLICTS IS NOT NULL
@@ -119,27 +120,45 @@
 		)
  	</select>
  	
- 	<select id="getConfirmationAlertData" parameterType="String" resultType="com.penske.apps.smccore.base.domain.ConfirmationAlertData">
+ 	<select id="getConfirmationAlertData" resultType="ConfirmationAlertData">
  		SELECT
-			SUM(CASE WHEN CNT_OC_CANC_ORDER = 'Y' THEN 1 ELSE 0 END) AS cancellationCount,
-			SUM(CASE WHEN CNT_OC_CHANGE_ORDER = 'Y' THEN 1 ELSE 0 END) AS changeOrderCount,
-			SUM(CASE WHEN CNT_OC_PURCHASE_ORDER = 'Y' THEN 1 ELSE 0 END) AS purchaseOrderCount
-		FROM SMC.SMC_ORDER_CONFIRMATION_SUMMARY OCSUM
-		<where>
+			SUM(CASE WHEN
+				<bind name="search" value="cancellationCountSearch" />
+				<include refid="core-sql-fragments.confirmationSearchFragment">
+					<property name="search" value="cancellationCountSearch"/>
+				</include>
+				THEN 1 ELSE 0 END) AS cancellationCount,
+			SUM(CASE WHEN
+				<bind name="search" value="coCountSearch" />
+				<include refid="core-sql-fragments.confirmationSearchFragment">
+					<property name="search" value="coCountSearch"/>
+				</include>
+				THEN 1 ELSE 0 END) AS changeOrderCount,
+			SUM(CASE WHEN
+				<bind name="search" value="poCountSearch" />
+				<include refid="core-sql-fragments.confirmationSearchFragment">
+					<property name="search" value="poCountSearch"/>
+				</include>
+				THEN 1 ELSE 0 END) AS purchaseOrderCount
+		FROM SMC.SMC_PURCHASING_DETAILS purchDetails
+		JOIN SMC.SMC_PURCHASING_HEADER header ON header.PO_NUMBER = purchDetails.PO_NUMBER
+		JOIN SMC.SMC_VENDOR_MASTER vend ON vend.VENDOR_NUMBER = header.VENDOR_NUMBER AND vend.CORP = header.CORP
+		WHERE 1 = 1
 			<if test="associatedVendorIds == null">
-				1 = -1
+				AND 1 = -1
 			</if>
 			<if test="associatedVendorIds != null">
-				VENDOR_ID IN (
+				AND VENDOR_ID IN (
 					<foreach collection="associatedVendorIds" item="associatedVendorId" open="" separator="," close="">
 			 			#{associatedVendorId}
 			 		</foreach>
 				)
 			</if>
-			<if test="vendorUser">
-				AND VENDOR_VISIBILITY = 'Y'
-			</if>
-		</where>
+			AND 
+			<bind name="search" value="whereClauseSearch" />
+			<include refid="core-sql-fragments.confirmationSearchFragment">
+				<property name="search" value="whereClauseSearch"/>
+			</include>
  	</select>
  	
  	<select id="getAllVendorIds" resultType="Integer">
@@ -148,4 +167,29 @@
 		FROM SMC.SMC_VENDOR_MASTER
  	</select>
  	
+ 	<!-- ***** Search Templates ***** -->
+ 	<select id="getSearchTemplates" resultType="SearchTemplate">
+ 		SELECT
+ 			template.TEMPLATE_ID,
+ 			template.TEMPLATE_KEY,
+ 			template.TEMPLATE_NAME,
+ 			template.DISPLAY_SEQUENCE,
+ 			CASE WHEN template.VISIBILITY_PENSKE = 'Y' THEN 1 ELSE 0 END AS visibleToPenske,
+ 			CASE WHEN template.VISIBILITY_VENDOR = 'Y' THEN 1 ELSE 0 END AS visibleToVendor,
+ 			tab.TAB_KEY
+ 		FROM SMC.SMC_SEARCH_TEMPLATES template
+ 		JOIN SMC.SMC_TAB_TEMPLATE_MAP tabMap ON tabMap.TEMPLATE_ID = template.TEMPLATE_ID
+ 		JOIN SMC.SMC_TAB_MASTER tab ON tab.TAB_ID = tabMap.TAB_ID
+ 		WHERE tab.STATUS = 'A'
+ 		  AND template.STATUS = 'A'
+ 		  <if test="tab != null">
+ 		  	AND tab.TAB_KEY = #{tab}
+ 		  </if>
+ 		  <if test="userType != null and userType == penskeUserType">
+ 			AND template.VISIBILITY_PENSKE = 'Y'
+ 		  </if>
+ 		  <if test="userType != null and userType != penskeUserType">
+ 		  	AND template.VISIBILITY_VENDOR = 'Y'
+ 		  </if>
+ 	</select>
 </mapper>

@@ -15,39 +15,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
-import org.springframework.test.context.jdbc.SqlGroup;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.penske.apps.smccore.MyBatisDaoTest;
+import com.penske.apps.smccore.TestData;
 import com.penske.apps.smccore.base.configuration.CoreConfiguration;
 import com.penske.apps.smccore.base.configuration.ProfileType;
-import com.penske.apps.smccore.base.domain.ConfirmationAlertData;
-import com.penske.apps.smccore.base.domain.FulfillmentAlertData;
-import com.penske.apps.smccore.base.domain.ProductionAlertData;
+import com.penske.apps.smccore.base.domain.User;
 import com.penske.apps.smccore.base.domain.enums.SmcTab;
 import com.penske.apps.smccore.base.domain.enums.UserType;
 import com.penske.apps.smccore.configuration.EmbeddedDataSourceConfiguration;
+import com.penske.apps.smccore.search.dao.AlertsDAO;
+import com.penske.apps.smccore.search.domain.ConfirmationAlertData;
+import com.penske.apps.smccore.search.domain.ConfirmationSearch;
+import com.penske.apps.smccore.search.domain.FulfillmentAlertData;
+import com.penske.apps.smccore.search.domain.ProductionAlertData;
+import com.penske.apps.smccore.search.domain.enums.AlertType;
 
 /**
  * Class under test: {@link AlertsDAO}
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={CoreConfiguration.class, EmbeddedDataSourceConfiguration.class})
-@SqlGroup({
-	@Sql(scripts = "/setup/create-corp-schema.sql"),
-	@Sql(scripts = "/setup/create-smc-schema.sql"),
-	@Sql(scripts = "/setup/test-case-scripts/alert-counts-data.sql"),
-	@Sql(scripts = "/setup/drop-corp-schema.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD),
-	@Sql(scripts = "/setup/drop-smc-schema.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
-})
 @ActiveProfiles(ProfileType.TEST)
+@Sql(scripts = "/setup/test-case-scripts/alert-counts-data.sql")
 @Transactional
 public class AlertsDAOTest extends MyBatisDaoTest
 {
 	@Autowired
 	private AlertsDAO dao;
+	
+	private final TestData data = new TestData();
+	private final User userPenske = data.userPenske;
+	private final User userVendor = data.userVendor;
 	
 	@Before
 	public void setup()
@@ -68,32 +69,41 @@ public class AlertsDAOTest extends MyBatisDaoTest
 	}
 	
 	@Test
-	
 	public void shouldGetConfirmationAlertDataForVendor()
 	{
-		ConfirmationAlertData naTruckData = dao.getConfirmationAlertData(Arrays.asList(1579), true);
-		assertThat(naTruckData.getPurchaseOrderCount(), is(27));
-		assertThat(naTruckData.getChangeOrderCount(), is(0));
-		assertThat(naTruckData.getCancellationCount(), is(0));
+		ConfirmationSearch poCountSearch = AlertType.OC_UNCONFIRMED_PO.createConfirmationSearch().asUser(userVendor, null);
+		ConfirmationSearch coCountSearch = AlertType.OC_UNCONFIRMED_CO.createConfirmationSearch().asUser(userVendor, null);
+		ConfirmationSearch cancellationSearch = AlertType.OC_UNCONFIRMED_CANCELLATION.createConfirmationSearch().asUser(userVendor, null);
+		ConfirmationSearch whereClauseSearch = new ConfirmationSearch().asUser(userVendor, null);
 		
-		ConfirmationAlertData amHaireData = dao.getConfirmationAlertData(Arrays.asList(1520), true);
-		assertThat(amHaireData.getPurchaseOrderCount(), is(0));
-		assertThat(amHaireData.getChangeOrderCount(), is(8));
-		assertThat(amHaireData.getCancellationCount(), is(0));
+		ConfirmationAlertData transwestData = dao.getConfirmationAlertData(Arrays.asList(1536), poCountSearch, coCountSearch, cancellationSearch, whereClauseSearch);
+		assertThat(transwestData.getPurchaseOrderCount(), is(2));
+		assertThat(transwestData.getChangeOrderCount(), is(0));
+		assertThat(transwestData.getCancellationCount(), is(0));
+		
+		ConfirmationAlertData truckLiteData = dao.getConfirmationAlertData(Arrays.asList(2085), poCountSearch, coCountSearch, cancellationSearch, whereClauseSearch);
+		assertThat(truckLiteData.getPurchaseOrderCount(), is(1));
+		assertThat(truckLiteData.getChangeOrderCount(), is(0));
+		assertThat(truckLiteData.getCancellationCount(), is(0));
 	}
-	
+
 	@Test
 	public void shouldGetConfirmationAlertDataForUser()
 	{
-		ConfirmationAlertData naTruckData = dao.getConfirmationAlertData(Arrays.asList(1579), false);
-		assertThat(naTruckData.getPurchaseOrderCount(), is(28));
-		assertThat(naTruckData.getChangeOrderCount(), is(0));
-		assertThat(naTruckData.getCancellationCount(), is(0));
+		ConfirmationSearch poCountSearch = AlertType.OC_UNCONFIRMED_PO.createConfirmationSearch().asUser(userPenske, null);
+		ConfirmationSearch coCountSearch = AlertType.OC_UNCONFIRMED_CO.createConfirmationSearch().asUser(userPenske, null);
+		ConfirmationSearch cancellationSearch = AlertType.OC_UNCONFIRMED_CANCELLATION.createConfirmationSearch().asUser(userPenske, null);
+		ConfirmationSearch whereClauseSearch = new ConfirmationSearch().asUser(userPenske, null);
 		
-		ConfirmationAlertData amHaireData = dao.getConfirmationAlertData(Arrays.asList(1520), false);
-		assertThat(amHaireData.getPurchaseOrderCount(), is(0));
-		assertThat(amHaireData.getChangeOrderCount(), is(9));
-		assertThat(amHaireData.getCancellationCount(), is(0));
+		ConfirmationAlertData transwestData = dao.getConfirmationAlertData(Arrays.asList(1536), poCountSearch, coCountSearch, cancellationSearch, whereClauseSearch);
+		assertThat(transwestData.getPurchaseOrderCount(), is(2));
+		assertThat(transwestData.getChangeOrderCount(), is(0));
+		assertThat(transwestData.getCancellationCount(), is(0));
+		
+		ConfirmationAlertData truckLiteData = dao.getConfirmationAlertData(Arrays.asList(2085), poCountSearch, coCountSearch, cancellationSearch, whereClauseSearch);
+		assertThat(truckLiteData.getPurchaseOrderCount(), is(1));
+		assertThat(truckLiteData.getChangeOrderCount(), is(0));
+		assertThat(truckLiteData.getCancellationCount(), is(0));
 	}
 	
 	@Test
@@ -105,7 +115,7 @@ public class AlertsDAOTest extends MyBatisDaoTest
 		assertThat(allUserData.getReadyToOrderCount(), is(8));
 		assertThat(allUserData.getContractReviewCount(), is(23));
 		assertThat(allUserData.getVendorAnalystAssignmentRequiredCount(), is(0));
-		assertThat(allUserData.getNewVendorSetupRequiredCount(), is(0));
+		assertThat(allUserData.getNewVendorSetupRequiredCount(), is(17));
 		assertThat(allUserData.getVendorUserSetupRequiredCount(), is(0));
 		
 		FulfillmentAlertData oneUserData = dao.getFullfillmentAlertData(Arrays.asList("600003280"));
@@ -114,7 +124,7 @@ public class AlertsDAOTest extends MyBatisDaoTest
 		assertThat(oneUserData.getReadyToOrderCount(), is(0));
 		assertThat(oneUserData.getContractReviewCount(), is(1));
 		assertThat(oneUserData.getVendorAnalystAssignmentRequiredCount(), is(0));
-		assertThat(oneUserData.getNewVendorSetupRequiredCount(), is(0));
+		assertThat(oneUserData.getNewVendorSetupRequiredCount(), is(17));
 		assertThat(oneUserData.getVendorUserSetupRequiredCount(), is(0));
 	}
 	
@@ -208,5 +218,13 @@ public class AlertsDAOTest extends MyBatisDaoTest
 		assertThat(fontaineData.getProdDateLateCount(), is(51));
 		assertThat(fontaineData.getProdDateOutOfRangeCount(), is(10));
 		assertThat(fontaineData.getProdHoldsCount(), is(15));
+	}
+
+	@Test
+	public void shouldGetSearchTemplates()
+	{
+		dao.getSearchTemplates(null, null, UserType.PENSKE);
+		dao.getSearchTemplates(SmcTab.ORDER_FULFILLMENT, UserType.PENSKE, UserType.PENSKE);
+		dao.getSearchTemplates(SmcTab.ORDER_CONFIRMATION, UserType.VENDOR, UserType.PENSKE);
 	}
 }
