@@ -93,6 +93,7 @@ import com.penske.apps.smccore.search.domain.SearchTemplate;
 import com.penske.apps.smccore.search.domain.SmcAlert;
 import com.penske.apps.smccore.search.domain.enums.AlertType;
 import com.penske.apps.smccore.search.domain.enums.ConfirmationSearchTemplateType;
+import com.penske.apps.smccore.typehandlers.CoreTypeHandlerMarker;
 
 /**
  * Sets up MyBatis configuration for the SMC core JAR. Expects that there will be a DataSource bean available for autowiring.
@@ -226,7 +227,9 @@ public class CoreMapperConfiguration
 		);
 		
 		//***** GLOBAL TYPE HANDLERS *****//
-		Set<String> typeHandlerPackages = SpringConfigUtil.getPackageNames();
+		Set<String> typeHandlerPackages = SpringConfigUtil.getPackageNames(
+			CoreTypeHandlerMarker.class
+		);
 		
 		//***** MYBATIS PLUGINS *****//
 		List<Interceptor> interceptors = new ArrayList<Interceptor>();
