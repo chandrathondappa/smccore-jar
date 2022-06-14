@@ -36,7 +36,6 @@ public enum SecurityFunction
 
 	//***** Order Confirmation / Production Security Functions *****//
 	ORDER_CONFIRMATION_TAB,
-	ORDER_CONFIRMATION_TAB_NEW,
 	EXPORT_DATA,
 	DOWNLOAD_DOCUMENTS,
 	DOWNLOAD_DOCUMENTS_PRODUCTION,
