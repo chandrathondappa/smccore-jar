@@ -32,7 +32,7 @@ import com.penske.apps.smccore.base.annotation.SkipQueryTest;
  */
 public abstract class MyBatisDaoTest
 {
-	private static final Set<String> ALWAYS_SKIP = new HashSet<String>(Arrays.asList("hashCode", "equals", "toString"));
+	private static final Set<String> ALWAYS_SKIP = new HashSet<String>(Arrays.asList("hashCode", "equals", "toString", "proxyClassLookup"));
 	
 	private static final Set<String> PROXY_SKIP_METHODS = new HashSet<String>();
 	
