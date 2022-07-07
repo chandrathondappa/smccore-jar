@@ -6,7 +6,6 @@
 		<groupId>com.penske.mis.common</groupId>
 		<artifactId>batch-parent</artifactId>
 		<version>1.0.0-DJ-BAT-20-077cefe</version>
-		<relativePath>./poc-resources/batch-parent-1.0.0-DJ-BAT-20-077cefe.pom</relativePath>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
@@ -41,14 +40,14 @@
 
 	<dependencies>
 		<!-- PTL Commons JARs -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.penske.mis.common.sharedlib</groupId> -->
-<!-- 			<artifactId>reuse</artifactId> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.penske.mis.common.customlib</groupId> -->
-<!-- 			<artifactId>uiframework</artifactId> -->
-<!-- 		</dependency> -->
+		<dependency>
+			<groupId>com.penske.mis.common.sharedlib</groupId>
+			<artifactId>reuse</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.penske.mis.common.customlib</groupId>
+			<artifactId>uiframework</artifactId>
+		</dependency>
 		
 		<!-- Publicly-available JARs -->
 		<dependency>
