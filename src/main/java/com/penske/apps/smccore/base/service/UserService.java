@@ -32,8 +32,6 @@ import com.penske.apps.smccore.base.domain.enums.LookupKey;
 import com.penske.apps.smccore.base.domain.enums.UserDepartment;
 import com.penske.apps.smccore.base.domain.enums.UserType;
 import com.penske.apps.smccore.base.exception.BusinessRuleException;
-import com.penske.business.ldap.sso.CPBGESSOUser;
-import com.penske.util.security.priv.CPTSso;
 
 /**
  * Service related to looking up users, security functions, and buddies.
@@ -126,28 +124,28 @@ public class UserService
     	return userDAO.getUsers(null, null, userType, userDepartment, false, false, true);
     }
 
-    /**
-	 * Looks up a user from the central Penske user store (not the same as the SMC user master table), based on their SSO.
-	 * @param userSso The sso ID of the user to look for.
-	 * @return The user, if one with that SSO exists. Null if no match was found
-	 */
-	public CPBGESSOUser getUserFromUserStore(String userSso)
-	{
-		if(StringUtils.isBlank(userSso))
-			return null;
-		
-		logger.info("Looking up user with SSO: " + userSso);
-		
-		CPTSso oSSO = new CPTSso();
-        CPBGESSOUser result = oSSO.findUser(userSso);
-        
-        if(result == null)
-        	logger.info("User is not available in LDAP");
-        else
-        	logger.info("User " + userSso + " found. Email: " + result.getEmailAddress());
-
-        return result;
-	}
+//    /**
+//	 * Looks up a user from the central Penske user store (not the same as the SMC user master table), based on their SSO.
+//	 * @param userSso The sso ID of the user to look for.
+//	 * @return The user, if one with that SSO exists. Null if no match was found
+//	 */
+//	public CPBGESSOUser getUserFromUserStore(String userSso)
+//	{
+//		if(StringUtils.isBlank(userSso))
+//			return null;
+//		
+//		logger.info("Looking up user with SSO: " + userSso);
+//		
+//		CPTSso oSSO = new CPTSso();
+//        CPBGESSOUser result = oSSO.findUser(userSso);
+//        
+//        if(result == null)
+//        	logger.info("User is not available in LDAP");
+//        else
+//        	logger.info("User " + userSso + " found. Email: " + result.getEmailAddress());
+//
+//        return result;
+//	}
 
 	/**
 	 * Gets a user security object for the given user
