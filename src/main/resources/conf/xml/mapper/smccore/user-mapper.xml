@@ -154,7 +154,7 @@
 			VALUES (
 				CAST(#{loginId} AS INTEGER),
 				CAST(#{user.sso} AS VARCHAR(100)),
-				CAST(#{serverLocation} AS VARCHAR(30))
+				CAST(LEFT(#{serverLocation}, 30) AS VARCHAR(30))
 			)
 		) temp (LOGIN_ID, SSO, SERVER_LOCATION)
 			ON temp.LOGIN_ID = userLogin.LOGIN_ID
